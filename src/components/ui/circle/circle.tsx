@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './circle.module.css';
 import { ElementStates } from '../../../types/element-states';
-import { motion } from 'framer-motion';
 
 interface CircleProps {
   state?: ElementStates;
@@ -12,7 +11,6 @@ interface CircleProps {
   tailType?: 'string' | 'element';
   extraClass?: string;
   isSmall?: boolean;
-  layoutId?: string;
 }
 
 export const Circle: React.FC<CircleProps> = ({
@@ -23,7 +21,6 @@ export const Circle: React.FC<CircleProps> = ({
   tail,
   extraClass = '',
   isSmall,
-  layoutId,
 }) => {
   return (
     <div className={`${styles.content} ${extraClass}`}>
@@ -36,18 +33,17 @@ export const Circle: React.FC<CircleProps> = ({
       >
         {head}
       </div>
-      <motion.div
+      <div
         className={`${styles.circle}  ${isSmall ? styles.small : ''} ${
           styles[state]
         }`}
-        layoutId={layoutId}
       >
         <p
           className={`text text_type_circle text_color_input ${styles.letter}`}
         >
           {letter}
         </p>
-      </motion.div>
+      </div>
       <p
         className={`text text_type_input text_color_input mt-4 ${styles.absolute} ${styles.index}`}
       >

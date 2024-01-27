@@ -45,8 +45,9 @@ export const FibonacciPage: React.FC = () => {
               animate={{ x: 0, y: 0, opacity: 1 }}
               transition={{ ease: 'easeIn', duration: 0.5, delay: i * 0.5 }}
               key={i}
+              layoutId={'id' + i}
             >
-              <Circle letter={el + ''} layoutId={'id' + i} index={i} />
+              <Circle letter={el + ''} index={i} />
             </motion.div>
           ))}
         </>
