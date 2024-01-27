@@ -23,5 +23,8 @@ code {
   display: flex;
   gap: 16px;
   justify-content: center;
+  flex-wrap: wrap;
   margin: 120px auto;
+  max-width: 944px;
+  row-gap: 58px;
 }
