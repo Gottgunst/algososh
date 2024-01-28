@@ -17,6 +17,8 @@ code {
   gap: 12px;
   max-width: 567px;
   margin: 0 auto;
+  /* align-items: center; */
+  justify-content: space-between;
 }
 
 .result {
@@ -24,7 +26,7 @@ code {
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 120px auto;
+  margin: 48px auto;
   max-width: 944px;
   row-gap: 58px;
 }

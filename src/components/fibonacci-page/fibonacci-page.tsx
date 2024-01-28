@@ -1,19 +1,25 @@
-import React, { FormEventHandler, useEffect, useState } from 'react';
+import React, { FormEventHandler, useEffect } from 'react';
 import { SolutionLayout } from '../ui/solution-layout/solution-layout';
 import { Input } from '../ui/input/input';
 import { Button } from '../ui/button/button';
 import { motion } from 'framer-motion';
 import { Circle } from '../ui/circle/circle';
 import { calcFibonacci } from '../../algorithms/calcFibonacci';
+import { useStagesState } from '../../hooks/useStagesState';
 
 export const FibonacciPage: React.FC = () => {
-  const [inputNumber, setInputNumber] = useState(0);
-
-  const [isDisabledInput, setIsDisabledInput] = useState(false);
-  const [isLoader, setIsLoader] = useState(false);
-
-  const [stages, setStages] = useState<number[] | null>(null);
-  const [currStage, setCurrStage] = useState<JSX.Element | null>(null);
+  const {
+    inputData,
+    setInputData,
+    isLoader,
+    setIsLoader,
+    isDisabledInput,
+    setIsDisabledInput,
+    stages,
+    setStages,
+    currStage,
+    setCurrStage,
+  } = useStagesState<number[]>(0);
 
   const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
     const input = (e.target as HTMLInputElement).value as unknown as number;
@@ -21,19 +27,19 @@ export const FibonacciPage: React.FC = () => {
     if (input > 19 || input < 1) setIsDisabledInput(true);
     else {
       setIsDisabledInput(false);
-      setInputNumber(input);
+      setInputData(input);
     }
   };
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setCurrStage(<></>);
-    setStages(calcFibonacci(inputNumber));
+    setStages(calcFibonacci(inputData));
     setIsLoader(true);
   };
 
   useEffect(() => {
-    if (inputNumber < 1) setIsDisabledInput(true);
+    if (inputData < 1) setIsDisabledInput(true);
     else setIsDisabledInput(false);
 
     if (stages) {
@@ -54,7 +60,7 @@ export const FibonacciPage: React.FC = () => {
       );
       setTimeout(() => setIsLoader(false), stages.length * 600);
     }
-  }, [stages, inputNumber]);
+  }, [stages, inputData]);
 
   return (
     <SolutionLayout title='Последовательность Фибоначчи'>

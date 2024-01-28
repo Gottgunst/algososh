@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useEffect, useState } from 'react';
+import React, { FormEventHandler, useEffect } from 'react';
 import { SolutionLayout } from '../ui/solution-layout/solution-layout';
 import { Input } from '../ui/input/input';
 import { Button } from '../ui/button/button';
@@ -6,19 +6,27 @@ import { letterWithIndex, reverseString } from '../../algorithms/reverseString';
 import { Circle } from '../ui/circle/circle';
 import { ElementStates } from '../../types/element-states';
 import { motion } from 'framer-motion';
+import { useStagesState } from '../../hooks/useStagesState';
+import { TStageElement } from '../../types/stage-element';
 
 export const StringComponent: React.FC = () => {
-  const [inputSting, setInputString] = useState('');
-
-  const [isLoader, setIsLoader] = useState(false);
-  const [isDisabledInput, setIsDisabledInput] = useState(false);
-
-  const [stages, setStages] = useState<letterWithIndex[][] | null>(null);
-  const [currStage, setCurrStage] = useState<JSX.Element | null>(null);
-  const [lap, setLap] = useState<number | null>(null);
+  const {
+    inputData,
+    setInputData,
+    isLoader,
+    setIsLoader,
+    isDisabledInput,
+    setIsDisabledInput,
+    stages,
+    setStages,
+    currStage,
+    setCurrStage,
+    lap,
+    setLap,
+  } = useStagesState<letterWithIndex[][]>('');
 
   const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
-    setInputString((e.target as HTMLInputElement).value);
+    setInputData((e.target as HTMLInputElement).value);
   };
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
@@ -26,65 +34,59 @@ export const StringComponent: React.FC = () => {
     setCurrStage(<></>);
     setLap(0);
     setIsLoader(true);
-    setStages(reverseString(inputSting));
+    setStages(reverseString(inputData));
+  };
+
+  const stageElement: TStageElement<letterWithIndex[][]> = ({
+    stages,
+    lap,
+    phase,
+  }) => {
+    return (
+      <>
+        {stages[lap].map((el) => {
+          // получаем уникальный индекс по которому хранится знак
+          const key = Object.keys(el)[0];
+          const lastIndex = stages[lap].length - 1 - lap;
+
+          const state =
+            phase === 'initial'
+              ? ElementStates.Default
+              : phase === 'finally'
+              ? ElementStates.Modified
+              : key === 'id' + lap || key === 'id' + lastIndex
+              ? ElementStates.Changing
+              : key < 'id' + lap || key > 'id' + lastIndex
+              ? ElementStates.Modified
+              : ElementStates.Default;
+
+          return (
+            <motion.div
+              key={key}
+              layoutId={key}
+              initial={{ y: -30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+            >
+              <Circle letter={el[key]} state={state} />
+            </motion.div>
+          );
+        })}
+      </>
+    );
   };
 
   useEffect(() => {
-    if (inputSting === '') setIsDisabledInput(true);
+    if (inputData === '') setIsDisabledInput(true);
     else setIsDisabledInput(false);
 
     if (stages && lap !== null) {
       // инициализация массива в состоянии default
       if (lap === 0)
-        setCurrStage(
-          <>
-            {stages[lap].map((el, i) => {
-              // получаем уникальный индекс по которому хранится знак
-              const key = Object.keys(el)[0];
-              const state = ElementStates.Default;
-
-              return (
-                <motion.div
-                  key={key}
-                  layoutId={key}
-                  initial={{ y: -30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                >
-                  <Circle letter={el[key]} state={state} />
-                </motion.div>
-              );
-            })}
-          </>
-        );
+        setCurrStage(stageElement({ stages, lap, phase: 'initial' }));
 
       // запуск анимации перестановки
       setTimeout(() => {
-        setCurrStage(
-          <>
-            {stages[lap].map((el) => {
-              // получаем уникальный индекс по которому хранится знак
-              const key = Object.keys(el)[0];
-              const lastIndex = stages[lap].length - 1 - lap;
-
-              const state =
-                key === 'id' + lap || key === 'id' + lastIndex
-                  ? ElementStates.Changing
-                  : key < 'id' + lap || key > 'id' + lastIndex
-                  ? ElementStates.Modified
-                  : ElementStates.Default;
-
-              return (
-                <motion.div
-                  key={key}
-                  layoutId={key}
-                  animate={{ y: 0, opacity: 1 }}
-                >
-                  <Circle letter={el[key]} state={state} />
-                </motion.div>
-              );
-            })}
-          </>
-        );
+        setCurrStage(stageElement({ stages, lap, phase: 'animate' }));
 
         if (lap < stages!.length - 1) {
           // переход на новый круг анимации
@@ -93,32 +95,14 @@ export const StringComponent: React.FC = () => {
           }, 500);
         } else {
           // перекрашиваем все знаки в modified
-          setCurrStage(
-            <>
-              {stages[lap].map((el) => {
-                // получаем уникальный индекс по которому хранится знак
-                const key = Object.keys(el)[0];
-                const state = ElementStates.Modified;
-
-                return (
-                  <motion.div
-                    key={key}
-                    layoutId={key}
-                    animate={{ y: 0, opacity: 1 }}
-                  >
-                    <Circle letter={el[key]} state={state} />
-                  </motion.div>
-                );
-              })}
-            </>
-          );
+          setCurrStage(stageElement({ stages, lap, phase: 'finally' }));
           setLap(null);
         }
       }, 900);
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
-  }, [stages, setCurrStage, lap, inputSting]);
+  }, [stages, setCurrStage, lap, inputData]);
 
   return (
     <SolutionLayout title='Строка'>
