@@ -6,10 +6,11 @@ import { useStagesState } from '../../hooks/useStagesState';
 import { Button } from '../ui/button/button';
 import { Direction } from '../../types/direction';
 import { RadioInput } from '../ui/radio-input/radio-input';
-import { numberWithIndex, sortingArr } from '../../algorithms/sortingArr';
+import { sortingArr } from '../../algorithms/sortingArr';
 import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
 import { TStageElement } from '../../types/stage-element';
+import { TArrWithIndex, arrWithMemo } from '../../utils/arrWithMemo';
 
 export const SortingPage: React.FC = () => {
   const {
@@ -25,7 +26,7 @@ export const SortingPage: React.FC = () => {
     setCurrStage,
     lap,
     setLap,
-  } = useStagesState<numberWithIndex[][]>([70, 6, 21, 13, 90]);
+  } = useStagesState<TArrWithIndex<number>[][]>([10, 100, 42, 35, 88]);
 
   const [sortingType, setSortingType] = useState('select');
 
@@ -35,51 +36,41 @@ export const SortingPage: React.FC = () => {
     const direction = (e.nativeEvent as any).submitter.value;
     const type = sortingType;
 
-    setCurrStage(<></>);
     setLap(0);
-    // setIsLoader(true);
+    setIsLoader(true);
     setStages(sortingArr({ arr: inputData, direction, type }));
   };
 
   const newArray = (): void => {
-    setInputData(randomArr());
+    const newArray = randomArr();
+    setInputData(newArray);
+    setCurrStage(
+      stageElement({
+        stages: [arrWithMemo<number>(newArray)],
+        lap: 0,
+      })
+    );
   };
 
   const changeSortingType: FormEventHandler<HTMLInputElement> = (e) => {
     setSortingType((e.target as HTMLInputElement).value);
   };
 
-  const stageElement: TStageElement<numberWithIndex[][]> = ({
+  const stageElement: TStageElement<TArrWithIndex<number>[][]> = ({
     stages,
     lap,
-    phase,
   }) => {
     return (
       <>
         {stages[lap].map((el) => {
-          // получаем уникальный индекс по которому хранится знак
-          const key = Object.keys(el)[0];
-          const lastIndex = stages[lap].length - 1 - lap;
-
-          const state =
-            phase === 'initial'
-              ? ElementStates.Default
-              : phase === 'finally'
-              ? ElementStates.Modified
-              : key === 'id' + lap || key === 'id' + lastIndex
-              ? ElementStates.Changing
-              : key < 'id' + lap || key > 'id' + lastIndex
-              ? ElementStates.Modified
-              : ElementStates.Default;
-
           return (
             <motion.div
-              key={key}
-              layoutId={key}
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              key={el.index}
+              layoutId={'id' + el.index}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
-              <Column index={el[key]} state={state} />
+              <Column index={el.data} state={el.state} />
             </motion.div>
           );
         })}
@@ -88,12 +79,38 @@ export const SortingPage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('inputData: ', inputData, '\nStages: ', stages);
+    setCurrStage(
+      stageElement({
+        stages: [arrWithMemo<number>([10, 100, 42, 35, 88])],
+        lap: 0,
+        phase: 'initial',
+      })
+    );
+  }, []);
+
+  useEffect(() => {
+    console.log('Stages: ', stages);
 
     if (stages && lap != null) {
-      setCurrStage(stageElement({ stages, lap, phase: 'initial' }));
+      // запуск анимации перестановки
+      setTimeout(() => {
+        setCurrStage(stageElement({ stages, lap }));
+
+        if (lap < stages!.length - 1) {
+          // переход на новый круг анимации
+          setTimeout(() => {
+            setLap(lap + 1);
+          }, 500);
+        } else {
+          // перекрашиваем все знаки в modified
+          setCurrStage(stageElement({ stages, lap }));
+          setLap(null);
+        }
+      }, 900);
+
+      setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
-  }, [stages]);
+  }, [stages, lap]);
 
   return (
     <SolutionLayout title='Сортировка массива'>
@@ -138,10 +155,9 @@ export const SortingPage: React.FC = () => {
         />
       </form>
       <motion.div
-        className='result'
+        className='result result_sortArray'
         layout
         transition={{ ease: 'easeIn', duration: 0.5 }}
-        style={{ alignItems: 'flex-end', maxWidth: 'auto' }}
       >
         {currStage}
       </motion.div>

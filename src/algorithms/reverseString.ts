@@ -1,6 +1,8 @@
-export function reverseString(str: string): letterWithIndex[][] {
+import { TArrWithIndex, arrWithMemo } from '../utils/arrWithMemo';
+
+export function reverseString(str: string): TArrWithIndex<string>[][] {
   const strArr = str.split('');
-  const strArrWithMemo = strArr.map((el, i) => ({ ['id' + i]: el }));
+  const strArrWithMemo = arrWithMemo<string>(strArr);
   const stages = [strArrWithMemo];
 
   for (let i = 0, end = str.length - 1; i < end; i++, end--) {
@@ -14,10 +16,3 @@ export function reverseString(str: string): letterWithIndex[][] {
 
   return stages;
 }
-
-/* #######################
-========== Типы ==========
-####################### */
-export type letterWithIndex = {
-  [id: string]: string;
-};

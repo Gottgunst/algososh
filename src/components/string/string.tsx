@@ -2,12 +2,13 @@ import React, { FormEventHandler, useEffect } from 'react';
 import { SolutionLayout } from '../ui/solution-layout/solution-layout';
 import { Input } from '../ui/input/input';
 import { Button } from '../ui/button/button';
-import { letterWithIndex, reverseString } from '../../algorithms/reverseString';
+import { reverseString } from '../../algorithms/reverseString';
 import { Circle } from '../ui/circle/circle';
 import { ElementStates } from '../../types/element-states';
 import { motion } from 'framer-motion';
 import { useStagesState } from '../../hooks/useStagesState';
 import { TStageElement } from '../../types/stage-element';
+import { TArrWithIndex } from '../../utils/arrWithMemo';
 
 export const StringComponent: React.FC = () => {
   const {
@@ -23,7 +24,7 @@ export const StringComponent: React.FC = () => {
     setCurrStage,
     lap,
     setLap,
-  } = useStagesState<letterWithIndex[][]>('');
+  } = useStagesState<TArrWithIndex<string>[][]>('');
 
   const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
     setInputData((e.target as HTMLInputElement).value);
@@ -37,7 +38,7 @@ export const StringComponent: React.FC = () => {
     setStages(reverseString(inputData));
   };
 
-  const stageElement: TStageElement<letterWithIndex[][]> = ({
+  const stageElement: TStageElement<TArrWithIndex<string>[][]> = ({
     stages,
     lap,
     phase,
@@ -45,8 +46,6 @@ export const StringComponent: React.FC = () => {
     return (
       <>
         {stages[lap].map((el) => {
-          // получаем уникальный индекс по которому хранится знак
-          const key = Object.keys(el)[0];
           const lastIndex = stages[lap].length - 1 - lap;
 
           const state =
@@ -54,20 +53,20 @@ export const StringComponent: React.FC = () => {
               ? ElementStates.Default
               : phase === 'finally'
               ? ElementStates.Modified
-              : key === 'id' + lap || key === 'id' + lastIndex
+              : el.index === lap || el.index === lastIndex
               ? ElementStates.Changing
-              : key < 'id' + lap || key > 'id' + lastIndex
+              : el.index < +lap || el.index > +lastIndex
               ? ElementStates.Modified
               : ElementStates.Default;
 
           return (
             <motion.div
-              key={key}
-              layoutId={key}
+              key={el.index}
+              layoutId={'id' + el.index}
               initial={{ y: -30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
             >
-              <Circle letter={el[key]} state={state} />
+              <Circle letter={el.data} state={state} />
             </motion.div>
           );
         })}
