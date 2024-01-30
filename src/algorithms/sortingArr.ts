@@ -7,49 +7,72 @@ export const sortingArr: TSortingArr = ({
   direction = 'ascending',
 }) => {
   const numWithMemo = arrWithMemo<number>(arr);
-  const stages = [numWithMemo];
+
   const { length } = numWithMemo;
+  const stages: TArrTuples = [
+    [numWithMemo, Array(length).fill(ElementStates.Default)],
+  ];
 
   for (let i = 0; i < length - 1; ) {
     const lastStage = stages.length - 1;
+    const [arr, phase] = stages[lastStage];
 
-    let num = stages[lastStage][i].data;
+    let num = arr[i].data;
     let numIndex = i;
 
     if (type === 'select') {
       for (let j = i + 1; j < length; j++) {
-        if (
-          direction === 'ascending'
-            ? num > stages[lastStage][j].data
-            : num < stages[lastStage][j].data
-        ) {
-          num = stages[lastStage][j].data;
+        stages.push(
+          phaseNumbers({
+            arr,
+            phase,
+            firstIndex: i,
+            secondIndex: j,
+            state: ElementStates.Changing,
+          })
+        );
+
+        if (direction === 'ascending' ? num > arr[j].data : num < arr[j].data) {
+          num = arr[j].data;
           numIndex = j;
         }
       }
 
       stages.push(
         swapNumbers({
-          arr: [...stages[lastStage]],
+          arr,
+          phase,
           firstIndex: i,
           secondIndex: numIndex,
+          state: ElementStates.Modified,
         })
       );
       i++;
     } else {
+      stages.push(
+        phaseNumbers({
+          arr,
+          phase,
+          firstIndex: i,
+          secondIndex: i + 1,
+          state: ElementStates.Changing,
+        })
+      );
       if (
         direction === 'ascending'
-          ? num > stages[lastStage][i + 1].data
-          : num < stages[lastStage][i + 1].data
+          ? num > arr[i + 1].data
+          : num < arr[i + 1].data
       ) {
-        num = stages[lastStage][i + 1].data;
+        num = arr[i + 1].data;
         numIndex = i + 1;
 
         stages.push(
           swapNumbers({
-            arr: [...stages[lastStage]],
+            arr,
+            phase,
             firstIndex: i,
             secondIndex: numIndex,
+            state: ElementStates.Modified,
           })
         );
 
@@ -61,27 +84,72 @@ export const sortingArr: TSortingArr = ({
   return stages;
 };
 
-const swapNumbers: TSwapNumbers = ({ arr, firstIndex, secondIndex }) => {
+const phaseNumbers: TPhaseNumbers = ({
+  arr,
+  phase,
+  firstIndex,
+  secondIndex,
+  state,
+}) => {
+  const stateArray: ElementStates[] = [...phase];
+
+  arr.forEach((el, i) => {
+    if (i === firstIndex || i === secondIndex) stateArray[i] = state;
+    else stateArray[i] = ElementStates.Default;
+  });
+
+  return [arr, stateArray];
+};
+
+const swapNumbers: TSwapNumbers = ({
+  arr,
+  phase,
+  firstIndex,
+  secondIndex,
+  state,
+}) => {
   const temp = arr[firstIndex];
+
   arr[firstIndex] = arr[secondIndex];
   arr[secondIndex] = temp;
 
-  return [...arr];
+  return [
+    [...arr],
+    phaseNumbers({
+      arr,
+      phase,
+      firstIndex,
+      secondIndex,
+      state: ElementStates.Modified,
+    })[1],
+  ];
 };
 
 /* #######################
 ========== Типы ==========
 ####################### */
-type TSortingArr = (props: TSortingArrProps) => TArrWithIndex<number>[][];
+type TSortingArr = (
+  props: TSortingArrProps
+) => [TArrWithIndex<number>[], ElementStates[]][];
+
+export type TArrTuples = [TArrWithIndex<number>[], ElementStates[]][];
+
 type TSortingArrProps = {
   arr: number[];
   type?: 'select' | 'bubble' | string;
   direction?: 'ascending' | 'descending';
 };
 
-type TSwapNumbers = (props: TSwapNumbersProps) => TArrWithIndex<number>[];
-type TSwapNumbersProps = {
+type TSwapNumbers = (
+  props: TNumbersProps
+) => [TArrWithIndex<number>[], ElementStates[]];
+
+type TPhaseNumbers = TSwapNumbers;
+
+type TNumbersProps = {
   arr: TArrWithIndex<number>[];
+  phase: ElementStates[];
   firstIndex: number;
   secondIndex: number;
+  state: ElementStates;
 };

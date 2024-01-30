@@ -6,7 +6,7 @@ import { useStagesState } from '../../hooks/useStagesState';
 import { Button } from '../ui/button/button';
 import { Direction } from '../../types/direction';
 import { RadioInput } from '../ui/radio-input/radio-input';
-import { sortingArr } from '../../algorithms/sortingArr';
+import { TArrTuples, sortingArr } from '../../algorithms/sortingArr';
 import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
 import { TStageElement } from '../../types/stage-element';
@@ -26,7 +26,7 @@ export const SortingPage: React.FC = () => {
     setCurrStage,
     lap,
     setLap,
-  } = useStagesState<TArrWithIndex<number>[][]>([10, 100, 42, 35, 88]);
+  } = useStagesState<TArrTuples>([10, 100, 42, 35, 88]);
 
   const [sortingType, setSortingType] = useState('select');
 
@@ -46,7 +46,7 @@ export const SortingPage: React.FC = () => {
     setInputData(newArray);
     setCurrStage(
       stageElement({
-        stages: [arrWithMemo<number>(newArray)],
+        stages: [[arrWithMemo<number>(newArray), [ElementStates.Default]]],
         lap: 0,
       })
     );
@@ -56,13 +56,11 @@ export const SortingPage: React.FC = () => {
     setSortingType((e.target as HTMLInputElement).value);
   };
 
-  const stageElement: TStageElement<TArrWithIndex<number>[][]> = ({
-    stages,
-    lap,
-  }) => {
+  const stageElement: TStageElement<TArrTuples> = ({ stages, lap }) => {
     return (
       <>
-        {stages[lap].map((el) => {
+        {stages[lap][0].map((el, i) => {
+          const state = stages[lap][1][i];
           return (
             <motion.div
               key={el.index}
@@ -70,7 +68,7 @@ export const SortingPage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <Column index={el.data} state={el.state} />
+              <Column index={el.data} state={state} />
             </motion.div>
           );
         })}
@@ -81,7 +79,9 @@ export const SortingPage: React.FC = () => {
   useEffect(() => {
     setCurrStage(
       stageElement({
-        stages: [arrWithMemo<number>([10, 100, 42, 35, 88])],
+        stages: [
+          [arrWithMemo<number>([10, 100, 42, 35, 88]), [ElementStates.Default]],
+        ],
         lap: 0,
         phase: 'initial',
       })
@@ -100,13 +100,13 @@ export const SortingPage: React.FC = () => {
           // переход на новый круг анимации
           setTimeout(() => {
             setLap(lap + 1);
-          }, 500);
+          }, 300);
         } else {
           // перекрашиваем все знаки в modified
           setCurrStage(stageElement({ stages, lap }));
           setLap(null);
         }
-      }, 900);
+      }, 500);
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }

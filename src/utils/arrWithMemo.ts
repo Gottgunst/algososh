@@ -10,5 +10,4 @@ type TArrWithMemo = <T>(arr: T[]) => TArrWithIndex<T>[];
 export type TArrWithIndex<T> = {
   data: T;
   index: number;
-  state: ElementStates;
 };
