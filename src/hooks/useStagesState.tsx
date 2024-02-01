@@ -16,8 +16,11 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   const [stages, setStages] = useState<S | null>(null);
   // элементы текущей сцены
   const [currStage, setCurrStage] = useState<CS | null>(null);
-  // покраска элемента
+
+  // цвет покраски элемента
   const [elementPhase, setElementPhase] = useState(ElementStates.Changing);
+  // индекс элемента для покраски
+  const [currElement, setCurrElement] = useState(0);
 
   // круги анимации
   const [lap, setLap] = useState<number | null>(null);
@@ -42,6 +45,8 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
     setCurrStage,
     elementPhase,
     setElementPhase,
+    currElement,
+    setCurrElement,
     lap,
     setLap,
   };
@@ -75,6 +80,9 @@ type TUseStagesState = <S, CS = JSX.Element>(
 
   elementPhase: ElementStates;
   setElementPhase: Dispatch<ElementStates>;
+
+  currElement: number;
+  setCurrElement: Dispatch<number>;
 
   lap: number | null;
   setLap: Dispatch<number | null>;

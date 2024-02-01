@@ -13,8 +13,6 @@ const queueSize = 7;
 
 export const QueuePage: React.FC = () => {
   const [queue] = useState(new Queue<string>(queueSize));
-  const [currElement, setCurrElement] = useState(0);
-
   const {
     inputData,
     setInputData,
@@ -31,6 +29,8 @@ export const QueuePage: React.FC = () => {
     setCurrStage,
     elementPhase,
     setElementPhase,
+    currElement,
+    setCurrElement,
   } = useStagesState<(string | null)[]>('');
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
@@ -64,6 +64,11 @@ export const QueuePage: React.FC = () => {
     queue.clear();
     setStages(Array(queueSize).fill(null));
   };
+
+  /* #######################
+  ======== Эффекты ========
+  ####################### */
+
   useEffect(() => {
     setIsDisabledDelete(true);
     setStages(Array(queueSize).fill(null));
@@ -111,7 +116,14 @@ export const QueuePage: React.FC = () => {
           setElementPhase(ElementStates.Default);
         }, 500);
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, [stages, elementPhase, currElement]);
+
+  /* #######################
+  ========== JSX ==========
+  ####################### */
 
   return (
     <SolutionLayout title='Очередь'>

@@ -38,6 +38,10 @@ export const FibonacciPage: React.FC = () => {
     setIsLoader(true);
   };
 
+  /* #######################
+  ======== Эффекты ========
+  ####################### */
+
   useEffect(() => {
     if (inputData < 1) setIsDisabledInput(true);
     else setIsDisabledInput(false);
@@ -60,7 +64,14 @@ export const FibonacciPage: React.FC = () => {
       );
       setTimeout(() => setIsLoader(false), stages.length * 600);
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, [stages, inputData]);
+
+  /* #######################
+  ========== JSX ==========
+  ####################### */
 
   return (
     <SolutionLayout title='Последовательность Фибоначчи'>

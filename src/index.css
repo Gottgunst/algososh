@@ -21,6 +21,9 @@ code {
   justify-content: space-between;
 }
 
+/* .form_ */
+
+
 .result {
   display: flex;
   gap: 16px;
@@ -36,4 +39,13 @@ code {
   max-width: 100%;
   height: 340px;
 
+}
+
+.input-width {
+  min-width: 204px;
+  max-width: 204px;
+}
+
+.button-width {
+  width: 100%;
 }

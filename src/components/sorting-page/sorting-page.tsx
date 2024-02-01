@@ -13,6 +13,7 @@ import { TStageElement } from '../../types/stage-element';
 import { arrWithMemo } from '../../utils/arrWithMemo';
 
 export const SortingPage: React.FC = () => {
+  const [sortingType, setSortingType] = useState('select');
   const {
     inputData,
     setInputData,
@@ -27,8 +28,6 @@ export const SortingPage: React.FC = () => {
     lap,
     setLap,
   } = useStagesState<TArrTuples>([10, 100, 42, 35, 88]);
-
-  const [sortingType, setSortingType] = useState('select');
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -81,6 +80,10 @@ export const SortingPage: React.FC = () => {
     );
   };
 
+  /* #######################
+  ======== Эффекты ========
+  ####################### */
+
   useEffect(() => {
     setCurrStage(
       stageElement({
@@ -118,7 +121,14 @@ export const SortingPage: React.FC = () => {
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, [stages, lap]);
+
+  /* #######################
+  ========== JSX ==========
+  ####################### */
 
   return (
     <SolutionLayout title='Сортировка массива'>

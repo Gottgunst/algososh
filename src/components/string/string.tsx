@@ -70,6 +70,10 @@ export const StringComponent: React.FC = () => {
     );
   };
 
+  /* #######################
+  ======== Эффекты ========
+  ####################### */
+
   useEffect(() => {
     if (inputData === '') setIsDisabledInput(true);
     else setIsDisabledInput(false);
@@ -97,7 +101,14 @@ export const StringComponent: React.FC = () => {
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, [stages, setCurrStage, lap, inputData]);
+
+  /* #######################
+  ========== JSX ==========
+  ####################### */
 
   return (
     <SolutionLayout title='Строка'>

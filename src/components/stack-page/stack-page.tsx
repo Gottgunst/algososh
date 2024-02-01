@@ -10,6 +10,7 @@ import { TArrWithIndex } from '../../utils/arrWithMemo';
 import { ElementStates } from '../../types/element-states';
 
 export const StackPage: React.FC = () => {
+  const [stack] = useState(new Stack<string>());
   const {
     inputData,
     setInputData,
@@ -27,8 +28,6 @@ export const StackPage: React.FC = () => {
     elementPhase,
     setElementPhase,
   } = useStagesState<TArrWithIndex<string>[]>('');
-
-  const [stack] = useState(new Stack<string>());
 
   const delItem = () => {
     setElementPhase(ElementStates.Changing);
@@ -55,6 +54,10 @@ export const StackPage: React.FC = () => {
     setStages(stack.getArray());
     setElementPhase(ElementStates.Changing);
   };
+
+  /* #######################
+  ======== Эффекты ========
+  ####################### */
 
   useEffect(() => {
     if (inputData === '') setIsDisabledInput(true);
@@ -95,7 +98,14 @@ export const StackPage: React.FC = () => {
       setIsDisabledDelete(true);
       setCurrStage(<></>);
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, [stages, elementPhase]);
+
+  /* #######################
+  ========== JSX ==========
+  ####################### */
 
   return (
     <SolutionLayout title='Стек'>
