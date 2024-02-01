@@ -1,4 +1,4 @@
-import { Dispatch, useState } from 'react';
+import { Dispatch, FormEventHandler, useState } from 'react';
 import { ElementStates } from '../types/element-states';
 
 export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
@@ -22,9 +22,14 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   // круги анимации
   const [lap, setLap] = useState<number | null>(null);
 
+  const changeInput = (e: any) => {
+    setInputData((e.target as HTMLInputElement).value);
+  };
+
   return {
     inputData,
     setInputData,
+    changeInput,
     isLoader,
     setIsLoader,
     isDisabledInput,
@@ -50,6 +55,8 @@ type TUseStagesState = <S, CS = JSX.Element>(
 ) => {
   inputData: typeof input;
   setInputData: Dispatch<typeof input>;
+
+  changeInput: FormEventHandler<HTMLInputElement>;
 
   isLoader: boolean;
   setIsLoader: Dispatch<boolean>;

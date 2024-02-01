@@ -3,19 +3,19 @@ import { TArrWithIndex, arrWithMemo } from '../utils/arrWithMemo';
 export class Stack<T> implements IStack<T> {
   private container: T[] = [];
 
-  push = (item: T): void => {
+  push = (item: T) => {
     this.container[this.container.length] = item;
   };
 
-  pop = (): void => {
+  pop = () => {
     this.container.length--;
   };
 
-  clear = (): void => {
+  clear = () => {
     this.container = [];
   };
 
-  peak = (): T | null => {
+  peak = () => {
     if (this.container.length > 0)
       return this.container[this.container.length - 1];
     return null;

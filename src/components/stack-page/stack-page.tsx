@@ -13,6 +13,7 @@ export const StackPage: React.FC = () => {
   const {
     inputData,
     setInputData,
+    changeInput,
     isLoader,
     setIsLoader,
     isDisabledInput,
@@ -29,12 +30,9 @@ export const StackPage: React.FC = () => {
 
   const [stack] = useState(new Stack<string>());
 
-  const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
-    setInputData((e.target as HTMLInputElement).value);
-  };
-
   const delItem = () => {
     setElementPhase(ElementStates.Changing);
+    setIsLoader(true);
     setTimeout(() => {
       stack.pop();
       setStages(stack.getArray());
@@ -88,10 +86,11 @@ export const StackPage: React.FC = () => {
           ))}
         </>
       );
-      setTimeout(() => {
-        setIsLoader(false);
-        setElementPhase(ElementStates.Default);
-      }, 700);
+      if (isLoader)
+        setTimeout(() => {
+          setIsLoader(false);
+          setElementPhase(ElementStates.Default);
+        }, 700);
     } else {
       setIsDisabledDelete(true);
       setCurrStage(<></>);

@@ -13,7 +13,7 @@ import { TArrWithIndex } from '../../utils/arrWithMemo';
 export const StringComponent: React.FC = () => {
   const {
     inputData,
-    setInputData,
+    changeInput,
     isLoader,
     setIsLoader,
     isDisabledInput,
@@ -25,10 +25,6 @@ export const StringComponent: React.FC = () => {
     lap,
     setLap,
   } = useStagesState<TArrWithIndex<string>[][]>('');
-
-  const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
-    setInputData((e.target as HTMLInputElement).value);
-  };
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
