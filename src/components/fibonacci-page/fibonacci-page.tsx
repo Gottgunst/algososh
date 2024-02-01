@@ -41,6 +41,11 @@ export const FibonacciPage: React.FC = () => {
   /* #######################
   ======== Эффекты ========
   ####################### */
+  useEffect(() => {
+    return () => {
+      setCurrStage(<></>);
+    };
+  }, []);
 
   useEffect(() => {
     if (inputData < 1) setIsDisabledInput(true);
@@ -64,9 +69,6 @@ export const FibonacciPage: React.FC = () => {
       );
       setTimeout(() => setIsLoader(false), stages.length * 600);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
   }, [stages, inputData]);
 
   /* #######################

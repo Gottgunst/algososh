@@ -58,6 +58,11 @@ export const StackPage: React.FC = () => {
   /* #######################
   ======== Эффекты ========
   ####################### */
+  useEffect(() => {
+    return () => {
+      setCurrStage(<></>);
+    };
+  }, []);
 
   useEffect(() => {
     if (inputData === '') setIsDisabledInput(true);
@@ -98,9 +103,6 @@ export const StackPage: React.FC = () => {
       setIsDisabledDelete(true);
       setCurrStage(<></>);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
   }, [stages, elementPhase]);
 
   /* #######################

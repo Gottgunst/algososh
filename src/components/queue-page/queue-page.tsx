@@ -72,6 +72,9 @@ export const QueuePage: React.FC = () => {
   useEffect(() => {
     setIsDisabledDelete(true);
     setStages(Array(queueSize).fill(null));
+    return () => {
+      setCurrStage(<></>);
+    };
   }, []);
 
   useEffect(() => {
@@ -116,9 +119,6 @@ export const QueuePage: React.FC = () => {
           setElementPhase(ElementStates.Default);
         }, 500);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
   }, [stages, elementPhase, currElement]);
 
   /* #######################

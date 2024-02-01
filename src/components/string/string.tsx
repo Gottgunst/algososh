@@ -73,11 +73,18 @@ export const StringComponent: React.FC = () => {
   /* #######################
   ======== Эффекты ========
   ####################### */
+  useEffect(() => {
+    return () => {
+      setCurrStage(<></>);
+    };
+  }, []);
 
   useEffect(() => {
     if (inputData === '') setIsDisabledInput(true);
     else setIsDisabledInput(false);
+  }, [inputData]);
 
+  useEffect(() => {
     if (stages && lap !== null) {
       // инициализация массива в состоянии default
       if (lap === 0)
@@ -101,10 +108,7 @@ export const StringComponent: React.FC = () => {
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
-  }, [stages, setCurrStage, lap, inputData]);
+  }, [stages, setCurrStage, lap]);
 
   /* #######################
   ========== JSX ==========

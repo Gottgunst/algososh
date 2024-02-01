@@ -97,6 +97,9 @@ export const SortingPage: React.FC = () => {
         phase: 'initial',
       })
     );
+    return () => {
+      setCurrStage(<></>);
+    };
   }, []);
 
   useEffect(() => {
@@ -121,9 +124,6 @@ export const SortingPage: React.FC = () => {
 
       setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
   }, [stages, lap]);
 
   /* #######################

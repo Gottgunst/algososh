@@ -119,6 +119,9 @@ export const ListPage: React.FC = () => {
       setElementPhase(ElementStates.Default);
       setStages(linkedList.getList());
     }
+    return () => {
+      setCurrStage(<></>);
+    };
   }, []);
 
   useEffect(() => {
@@ -180,9 +183,6 @@ export const ListPage: React.FC = () => {
           setElementPhase(ElementStates.Default);
         }, 500);
     }
-    return () => {
-      setCurrStage(<></>);
-    };
   }, [stages, elementPhase, currElement]);
 
   /* #######################
