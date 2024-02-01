@@ -10,7 +10,7 @@ import { TArrTuples, sortingArr } from '../../algorithms/sortingArr';
 import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
 import { TStageElement } from '../../types/stage-element';
-import { TArrWithIndex, arrWithMemo } from '../../utils/arrWithMemo';
+import { arrWithMemo } from '../../utils/arrWithMemo';
 
 export const SortingPage: React.FC = () => {
   const {
@@ -46,7 +46,12 @@ export const SortingPage: React.FC = () => {
     setInputData(newArray);
     setCurrStage(
       stageElement({
-        stages: [[arrWithMemo<number>(newArray), [ElementStates.Default]]],
+        stages: [
+          [
+            arrWithMemo<number>(newArray),
+            Array(newArray.length).fill(ElementStates.Default),
+          ],
+        ],
         lap: 0,
       })
     );
@@ -80,7 +85,10 @@ export const SortingPage: React.FC = () => {
     setCurrStage(
       stageElement({
         stages: [
-          [arrWithMemo<number>([10, 100, 42, 35, 88]), [ElementStates.Default]],
+          [
+            arrWithMemo<number>([10, 100, 42, 35, 88]),
+            Array(5).fill(ElementStates.Default),
+          ],
         ],
         lap: 0,
         phase: 'initial',

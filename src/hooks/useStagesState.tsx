@@ -1,4 +1,5 @@
 import { Dispatch, useState } from 'react';
+import { ElementStates } from '../types/element-states';
 
 export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   // входящие данные
@@ -8,11 +9,15 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   const [isLoader, setIsLoader] = useState(false);
   // отключение кнопок ввода
   const [isDisabledInput, setIsDisabledInput] = useState(false);
+  // отключение кнопок очистки
+  const [isDisabledDelete, setIsDisabledDelete] = useState(false);
 
   // данные для всех сцен
   const [stages, setStages] = useState<S | null>(null);
   // элементы текущей сцены
   const [currStage, setCurrStage] = useState<CS | null>(null);
+  // покраска элемента
+  const [elementPhase, setElementPhase] = useState(ElementStates.Changing);
 
   // круги анимации
   const [lap, setLap] = useState<number | null>(null);
@@ -24,10 +29,14 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
     setIsLoader,
     isDisabledInput,
     setIsDisabledInput,
+    isDisabledDelete,
+    setIsDisabledDelete,
     stages,
     setStages,
     currStage,
     setCurrStage,
+    elementPhase,
+    setElementPhase,
     lap,
     setLap,
   };
@@ -48,11 +57,17 @@ type TUseStagesState = <S, CS = JSX.Element>(
   isDisabledInput: boolean;
   setIsDisabledInput: Dispatch<boolean>;
 
+  isDisabledDelete: boolean;
+  setIsDisabledDelete: Dispatch<boolean>;
+
   stages: S | null;
-  setStages: Dispatch<S>;
+  setStages: Dispatch<S | null>;
 
   currStage: CS | null;
-  setCurrStage: Dispatch<CS>;
+  setCurrStage: Dispatch<CS | null>;
+
+  elementPhase: ElementStates;
+  setElementPhase: Dispatch<ElementStates>;
 
   lap: number | null;
   setLap: Dispatch<number | null>;
