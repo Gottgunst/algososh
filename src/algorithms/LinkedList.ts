@@ -42,6 +42,7 @@ export class LinkedList<T> implements ILinkedList<T> {
 
   shift() {
     if (this.head?.next) {
+      this.head.next.prev = null;
       this.head = this.head.next;
       this.size--;
     } else this.clear();
@@ -86,7 +87,7 @@ export class LinkedList<T> implements ILinkedList<T> {
 
       if (index === 0) {
         this.prepend(element);
-      } else if (index === this.size - 1) {
+      } else if (index === this.size - 1 && index !== 1) {
         this.append(element);
       } else {
         const isFromHead = this.size / 2 - index > 0;
@@ -106,7 +107,7 @@ export class LinkedList<T> implements ILinkedList<T> {
             curr.next = node;
           }
         } else {
-          while (currIndex - 1 !== index) {
+          while (currIndex !== index) {
             curr = curr!.prev;
             currIndex--;
           }
