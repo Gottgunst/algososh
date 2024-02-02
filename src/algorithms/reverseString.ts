@@ -1,6 +1,6 @@
-import { TArrWithIndex, arrWithMemo } from '../utils/arrWithMemo';
+import { TArrWithId, arrWithMemo } from '../utils/arrWithMemo';
 
-export function reverseString(str: string): TArrWithIndex<string>[][] {
+export function reverseString(str: string): TArrWithId<string>[][] {
   const strArr = str.split('');
   const strArrWithMemo = arrWithMemo<string>(strArr);
   const stages = [strArrWithMemo];

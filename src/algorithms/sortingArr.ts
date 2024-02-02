@@ -1,5 +1,4 @@
-import { ElementStates } from '../types/element-states';
-import { TArrWithIndex, arrWithMemo } from '../utils/arrWithMemo';
+import { TArrWithId, arrWithMemo } from '../utils/arrWithMemo';
 
 export const sortingArr: TSortingArr = ({
   arr,
@@ -9,29 +8,17 @@ export const sortingArr: TSortingArr = ({
   const numWithMemo = arrWithMemo<number>(arr);
 
   const { length } = numWithMemo;
-  const stages: TArrTuples = [
-    [numWithMemo, Array(length).fill(ElementStates.Default)],
-  ];
+  const stages = [numWithMemo];
 
   for (let i = 0; i < length - 1; ) {
     const lastStage = stages.length - 1;
-    const [arr, phase] = stages[lastStage];
+    const arr = stages[lastStage];
 
     let num = arr[i].data;
     let numIndex = i;
 
     if (type === 'select') {
       for (let j = i + 1; j < length; j++) {
-        stages.push(
-          phaseNumbers({
-            arr,
-            phase,
-            firstIndex: i,
-            secondIndex: j,
-            state: ElementStates.Changing,
-          })
-        );
-
         if (direction === 'ascending' ? num > arr[j].data : num < arr[j].data) {
           num = arr[j].data;
           numIndex = j;
@@ -41,23 +28,12 @@ export const sortingArr: TSortingArr = ({
       stages.push(
         swapNumbers({
           arr,
-          phase,
           firstIndex: i,
           secondIndex: numIndex,
-          state: ElementStates.Modified,
         })
       );
       i++;
     } else {
-      stages.push(
-        phaseNumbers({
-          arr,
-          phase,
-          firstIndex: i,
-          secondIndex: i + 1,
-          state: ElementStates.Changing,
-        })
-      );
       if (
         direction === 'ascending'
           ? num > arr[i + 1].data
@@ -69,10 +45,8 @@ export const sortingArr: TSortingArr = ({
         stages.push(
           swapNumbers({
             arr,
-            phase,
             firstIndex: i,
             secondIndex: numIndex,
-            state: ElementStates.Modified,
           })
         );
 
@@ -84,55 +58,19 @@ export const sortingArr: TSortingArr = ({
   return stages;
 };
 
-const phaseNumbers: TPhaseNumbers = ({
-  arr,
-  phase,
-  firstIndex,
-  secondIndex,
-  state,
-}) => {
-  const stateArray: ElementStates[] = [...phase];
-
-  arr.forEach((el, i) => {
-    if (i === firstIndex || i === secondIndex) stateArray[i] = state;
-    else stateArray[i] = ElementStates.Default;
-  });
-
-  return [arr, stateArray];
-};
-
-const swapNumbers: TSwapNumbers = ({
-  arr,
-  phase,
-  firstIndex,
-  secondIndex,
-  state,
-}) => {
+const swapNumbers: TSwapNumbers = ({ arr, firstIndex, secondIndex }) => {
   const temp = arr[firstIndex];
 
   arr[firstIndex] = arr[secondIndex];
   arr[secondIndex] = temp;
 
-  return [
-    [...arr],
-    phaseNumbers({
-      arr,
-      phase,
-      firstIndex,
-      secondIndex,
-      state: ElementStates.Modified,
-    })[1],
-  ];
+  return [...arr];
 };
 
 /* #######################
 ========== Типы ==========
 ####################### */
-type TSortingArr = (
-  props: TSortingArrProps
-) => [TArrWithIndex<number>[], ElementStates[]][];
-
-export type TArrTuples = [TArrWithIndex<number>[], ElementStates[]][];
+type TSortingArr = (props: TSortingArrProps) => TArrWithId<number>[][];
 
 type TSortingArrProps = {
   arr: number[];
@@ -140,16 +78,10 @@ type TSortingArrProps = {
   direction?: 'ascending' | 'descending';
 };
 
-type TSwapNumbers = (
-  props: TNumbersProps
-) => [TArrWithIndex<number>[], ElementStates[]];
-
-type TPhaseNumbers = TSwapNumbers;
+type TSwapNumbers = (props: TNumbersProps) => TArrWithId<number>[];
 
 type TNumbersProps = {
-  arr: TArrWithIndex<number>[];
-  phase: ElementStates[];
+  arr: TArrWithId<number>[];
   firstIndex: number;
   secondIndex: number;
-  state: ElementStates;
 };

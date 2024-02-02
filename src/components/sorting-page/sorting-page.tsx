@@ -6,28 +6,37 @@ import { useStagesState } from '../../hooks/useStagesState';
 import { Button } from '../ui/button/button';
 import { Direction } from '../../types/direction';
 import { RadioInput } from '../ui/radio-input/radio-input';
-import { TArrTuples, sortingArr } from '../../algorithms/sortingArr';
+import { sortingArr } from '../../algorithms/sortingArr';
 import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
-import { TStageElement } from '../../types/stage-element';
-import { arrWithMemo } from '../../utils/arrWithMemo';
+import { TElementAnimation, TStageElement } from '../../types/stage-element';
+import { TArrWithId, arrWithMemo } from '../../utils/arrWithMemo';
+
+// Начальный Массив
+const initArray = [10, 100, 42, 35, 88];
 
 export const SortingPage: React.FC = () => {
   const [sortingType, setSortingType] = useState('select');
+  const [animationArray, setAnimationArray] = useState<
+    TElementAnimation[] | null
+  >(null);
+  const [currElement, setCurrElement] = useState<number>(0);
+
   const {
     inputData,
     setInputData,
     isLoader,
     setIsLoader,
     isDisabledInput,
-    setIsDisabledInput,
     stages,
     setStages,
     currStage,
     setCurrStage,
     lap,
     setLap,
-  } = useStagesState<TArrTuples>([10, 100, 42, 35, 88]);
+    timeline,
+    wait,
+  } = useStagesState<TArrWithId<number>[][]>(initArray);
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -35,8 +44,8 @@ export const SortingPage: React.FC = () => {
     const direction = (e.nativeEvent as any).submitter.value;
     const type = sortingType;
 
-    setLap(0);
     setIsLoader(true);
+    setLap(0);
     setStages(sortingArr({ arr: inputData, direction, type }));
   };
 
@@ -45,12 +54,7 @@ export const SortingPage: React.FC = () => {
     setInputData(newArray);
     setCurrStage(
       stageElement({
-        stages: [
-          [
-            arrWithMemo<number>(newArray),
-            Array(newArray.length).fill(ElementStates.Default),
-          ],
-        ],
+        stages: [arrWithMemo<number>(newArray)],
         lap: 0,
       })
     );
@@ -60,23 +64,34 @@ export const SortingPage: React.FC = () => {
     setSortingType((e.target as HTMLInputElement).value);
   };
 
-  const stageElement: TStageElement<TArrTuples> = ({ stages, lap }) => {
+  const stageElement: TStageElement<TArrWithId<number>[][]> = ({
+    stages,
+    lap,
+    animation = Array(stages[lap].length).fill({
+      state: ElementStates.Default,
+    }),
+  }) => {
     return (
-      <>
-        {stages[lap][0].map((el, i) => {
-          const state = stages[lap][1][i];
+      <motion.div
+        layoutId='result'
+        className='result result_sortArray'
+        transition={{ ease: 'easeIn', duration: 0.7 }}
+      >
+        {stages[lap].map((el, i) => {
+          const state = animation[i].state;
+
           return (
             <motion.div
-              key={el.index}
-              layoutId={'id' + el.index}
-              initial={{ opacity: 0 }}
+              key={el.id}
+              layoutId={'id' + el.id}
+              initial={{ opacity: 0, scale: 1, y: 0 }}
               animate={{ opacity: 1 }}
             >
               <Column index={el.data} state={state} />
             </motion.div>
           );
         })}
-      </>
+      </motion.div>
     );
   };
 
@@ -85,44 +100,66 @@ export const SortingPage: React.FC = () => {
   ####################### */
 
   useEffect(() => {
-    setCurrStage(
-      stageElement({
-        stages: [
-          [
-            arrWithMemo<number>([10, 100, 42, 35, 88]),
-            Array(5).fill(ElementStates.Default),
-          ],
-        ],
-        lap: 0,
-        phase: 'initial',
-      })
-    );
+    if (!stages)
+      setCurrStage(
+        stageElement({
+          stages: [arrWithMemo<number>(initArray)],
+          lap: 0,
+        })
+      );
     return () => {
       setCurrStage(<></>);
     };
   }, []);
 
   useEffect(() => {
-    console.log('Stages: ', stages);
-
     if (stages && lap != null) {
-      // запуск анимации перестановки
-      setTimeout(() => {
-        setCurrStage(stageElement({ stages, lap }));
+      let anim: TElementAnimation[];
 
-        if (lap < stages!.length - 1) {
-          // переход на новый круг анимации
-          setTimeout(() => {
-            setLap(lap + 1);
-          }, 300);
-        } else {
-          // перекрашиваем все знаки в modified
+      timeline(() => {
+        // if (animationArray === null && currElement < stages[lap].length - 1) {
+        //   setAnimationArray(
+        //
+        //   );
+        // }
+      })
+        .then(() => {
+          // anim = [
+          //   ...stages[lap].map((el, i) => {
+          //     return {
+          //       state:
+          //         el.index === i
+          //           ? ElementStates.Changing
+          //           : ElementStates.Modified,
+          //       index: el.index,
+          //       link: el,
+          //     };
+          //   }),
+          // ];
+        })
+        .then(() => {
           setCurrStage(stageElement({ stages, lap }));
-          setLap(null);
-        }
-      }, 500);
 
-      setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
+          // if (currElement < stages[lap].length - 1) {
+          //   // setAnimationArray(null);
+          //   setCurrElement(currElement + 1);
+          //   return Promise.reject();
+          // }
+        })
+        .then(() => wait(30 * stages.length - 1))
+        .then(() => {
+          if (lap < stages!.length - 1) {
+            setLap(lap + 1);
+            setCurrElement(0);
+          } else {
+            setLap(null);
+            setIsLoader(false);
+          }
+        })
+        .catch(() => {
+          // setLap(null);
+          // setIsLoader(false);
+        });
     }
   }, [stages, lap]);
 
@@ -132,7 +169,11 @@ export const SortingPage: React.FC = () => {
 
   return (
     <SolutionLayout title='Сортировка массива'>
-      <form className='form' onSubmit={runAlgorithm} style={{ maxWidth: 927 }}>
+      <form
+        className='form'
+        onSubmit={runAlgorithm}
+        style={{ maxWidth: 927, height: 60, alignItems: 'center' }}
+      >
         <RadioInput
           label='Выбор'
           value='select'
@@ -172,13 +213,7 @@ export const SortingPage: React.FC = () => {
           onClick={newArray}
         />
       </form>
-      <motion.div
-        className='result result_sortArray'
-        layout
-        transition={{ ease: 'easeIn', duration: 0.5 }}
-      >
-        {currStage}
-      </motion.div>
+      {currStage}
     </SolutionLayout>
   );
 };

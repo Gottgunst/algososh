@@ -8,7 +8,7 @@ import { ElementStates } from '../../types/element-states';
 import { motion } from 'framer-motion';
 import { useStagesState } from '../../hooks/useStagesState';
 import { TStageElement } from '../../types/stage-element';
-import { TArrWithIndex } from '../../utils/arrWithMemo';
+import { TArrWithId } from '../../utils/arrWithMemo';
 
 export const StringComponent: React.FC = () => {
   const {
@@ -24,7 +24,7 @@ export const StringComponent: React.FC = () => {
     setCurrStage,
     lap,
     setLap,
-  } = useStagesState<TArrWithIndex<string>[][]>('');
+  } = useStagesState<TArrWithId<string>[][]>('');
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -34,7 +34,7 @@ export const StringComponent: React.FC = () => {
     setStages(reverseString(inputData));
   };
 
-  const stageElement: TStageElement<TArrWithIndex<string>[][]> = ({
+  const stageElement: TStageElement<TArrWithId<string>[][]> = ({
     stages,
     lap,
     phase,
@@ -58,7 +58,7 @@ export const StringComponent: React.FC = () => {
           return (
             <motion.div
               key={el.index}
-              layoutId={'id' + el.index}
+              layoutId={'id' + el.id}
               initial={{ y: -30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
             >

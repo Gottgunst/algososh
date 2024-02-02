@@ -1,4 +1,4 @@
-import { TArrWithIndex, arrWithMemo } from '../utils/arrWithMemo';
+import { TArrWithId, arrWithMemo } from '../utils/arrWithMemo';
 
 export class Stack<T> implements IStack<T> {
   private container: T[] = [];
@@ -34,5 +34,5 @@ interface IStack<T> {
   clear: () => void;
   peak: () => T | null;
   getSize: () => number;
-  getArray: () => TArrWithIndex<T>[];
+  getArray: () => TArrWithId<T>[];
 }

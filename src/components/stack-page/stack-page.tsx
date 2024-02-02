@@ -6,7 +6,7 @@ import { useStagesState } from '../../hooks/useStagesState';
 import { motion } from 'framer-motion';
 import { Stack } from '../../algorithms/Stack';
 import { Circle } from '../ui/circle/circle';
-import { TArrWithIndex } from '../../utils/arrWithMemo';
+import { TArrWithId } from '../../utils/arrWithMemo';
 import { ElementStates } from '../../types/element-states';
 
 export const StackPage: React.FC = () => {
@@ -27,7 +27,7 @@ export const StackPage: React.FC = () => {
     setCurrStage,
     elementPhase,
     setElementPhase,
-  } = useStagesState<TArrWithIndex<string>[]>('');
+  } = useStagesState<TArrWithId<string>[]>('');
 
   const delItem = () => {
     setElementPhase(ElementStates.Changing);

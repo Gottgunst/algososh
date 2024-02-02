@@ -6,10 +6,10 @@ import { Button } from '../ui/button/button';
 import { Input } from '../ui/input/input';
 import { Circle } from '../ui/circle/circle';
 import { ArrowIcon } from '../ui/icons/arrow-icon';
-import { LinkedList, TArrWithId } from '../../algorithms/LinkedList';
+import { LinkedList } from '../../algorithms/LinkedList';
 import { Methods } from '../../types/methods';
 import { ElementStates } from '../../types/element-states';
-import { rejects } from 'assert';
+import { TArrWithId } from '../../utils/arrWithMemo';
 
 // Максимальный Размер Списка
 const listSize = 7;
@@ -20,6 +20,7 @@ export const ListPage: React.FC = () => {
   const [isDisabledInputIndex, setIsDisabledInputIndex] = useState(false);
   const [isEnough, setIsEnough] = useState(false);
 
+  const [method, setMethod] = useState<Methods | null>();
   const [headInfo, setHeadInfo] = useState<JSX.Element | string | null>('head');
   const [tailInfo, setTailInfo] = useState<JSX.Element | string | null>('tail');
 
@@ -41,20 +42,9 @@ export const ListPage: React.FC = () => {
     setElementPhase,
     currElement,
     setCurrElement,
+    timeline,
+    wait,
   } = useStagesState<TArrWithId<string | null>[]>('');
-
-  const timeline = (callback: Function) =>
-    new Promise<void>((resolve) => {
-      callback();
-      resolve();
-    });
-
-  const wait = (time = 700) =>
-    new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, time);
-    });
 
   const changeInputIndex: FormEventHandler<HTMLInputElement> = (e: any) => {
     const input = Number((e.target as HTMLInputElement).value);
@@ -70,115 +60,70 @@ export const ListPage: React.FC = () => {
     e.preventDefault();
     const method: Methods = (e.nativeEvent as any).submitter.value;
     const size = linkedList.getSize();
-    const timer = size * 100 + 500;
-    const isFromHead = size / 2 - inputIndex > 0;
+    // const isFromHead = size / 2 - inputIndex > 0;
+    setMethod(method);
+    setIsLoader(true);
 
-    timeline(() => {
-      setIsLoader(true);
-      setHeadInfo(miniCircle(inputData, true));
-      setElementPhase(ElementStates.Default);
+    setHeadInfo(miniCircle(inputData, true));
+    setElementPhase(ElementStates.Default);
 
-      switch (method) {
-        case Methods.addHead:
-          setCurrElement(0);
-          linkedList.prepend(inputData);
-          break;
-        case Methods.addTail:
-          setCurrElement(size - 1);
-          linkedList.append(inputData);
-          break;
-        case Methods.addIndex:
-          // setCurrElement(isFromHead ? -1 : size);
-          setCurrElement(inputIndex);
-          linkedList.insertAt(inputData, inputIndex);
-          setElementPhase(ElementStates.Changing);
-          break;
+    switch (method) {
+      case Methods.addHead:
+        setCurrElement(0);
+        linkedList.prepend(inputData);
+        break;
+      case Methods.addTail:
+        setCurrElement(size - 1);
+        linkedList.append(inputData);
+        break;
+      case Methods.addIndex:
+        // setCurrElement(isFromHead ? 0 : size - 1);
+        setCurrElement(0);
+        linkedList.insertAt(inputData, inputIndex);
+        setElementPhase(ElementStates.Changing);
+        break;
 
-        default:
-          break;
-      }
-    })
-      .then(() => wait(timer))
-      // .then(() =>
-      //   timeline(() => {
-      //     console.log(method);
-      //     if (method === Methods.addIndex)
-      //       for (
-      //         let i = currElement;
-      //         i !== inputIndex;
-      //         isFromHead ? i++ : i--
-      //       ) {
-      //         console.log(i);
-
-      //         setCurrElement(i);
-      //       }
-      //   })
-      // )
-      .then(() => {
-        if (method === Methods.addTail) setCurrElement(size);
-      })
-      .then(() => wait(timer))
-      .then(() => {
-        setStages(linkedList.getList());
-        setHeadInfo('head');
-        setElementPhase(ElementStates.Modified);
-        setInputData('');
-        (document.querySelector('input[name=list]') as HTMLInputElement).value =
-          '';
-        setIsLoader(false);
-      })
-      .then(() => wait(timer * 1.5))
-      .then(() => {
-        setElementPhase(ElementStates.Default);
-      });
+      default:
+        break;
+    }
   };
 
   const delItem = (method: Methods) => {
     const size = linkedList.getSize();
-    const timer = size * 100 + 500;
-
     const removeCurrValue = (index: number) => {
       const temp = [...stages!];
       temp[index].data = '';
       return temp;
     };
+    setMethod(method);
+    setIsLoader(true);
+    setElementPhase(ElementStates.Changing);
 
-    timeline(() => {
-      setIsLoader(true);
-      setElementPhase(ElementStates.Changing);
+    if (stages)
+      switch (method) {
+        case Methods.delHead:
+          setCurrElement(0);
+          setTailInfo(miniCircle(stages[0].data!, false));
+          setStages(removeCurrValue(0));
+          linkedList.shift();
+          break;
+        case Methods.delTail:
+          setCurrElement(size - 1);
+          setTailInfo(miniCircle(stages[size - 1].data!, false));
+          setStages(removeCurrValue(size - 1));
+          linkedList.pop();
+          break;
+        case Methods.delIndex:
+          setCurrElement(inputIndex);
 
-      if (stages)
-        switch (method) {
-          case Methods.delHead:
-            setCurrElement(0);
-            setTailInfo(miniCircle(stages[0].data!, false));
-            setStages(removeCurrValue(0));
-            linkedList.shift();
-            break;
-          case Methods.delTail:
-            setCurrElement(size - 1);
-            setTailInfo(miniCircle(stages[size - 1].data!, false));
-            setStages(removeCurrValue(size - 1));
-            linkedList.pop();
-            break;
-          case Methods.delIndex:
-            setCurrElement(inputIndex);
-            setTailInfo(miniCircle(stages[inputIndex].data!, false));
-            setStages(removeCurrValue(inputIndex));
-            linkedList.removeAt(inputIndex);
-            break;
+          setTailInfo(miniCircle(stages[inputIndex].data!, false));
+          setStages(removeCurrValue(inputIndex));
+          linkedList.removeAt(inputIndex);
+          break;
 
-          default:
-            break;
-        }
-    })
-      .then(() => wait(timer * 2))
-      .then(() => {
-        setStages(linkedList.getList());
-        setTailInfo('tail');
-        setElementPhase(ElementStates.Default);
-        setIsLoader(false);
-      });
+        default:
+          break;
+      }
   };
 
   const miniCircle = (input: string, isHead: boolean) => (
@@ -220,51 +165,115 @@ export const ListPage: React.FC = () => {
   }, [inputData]);
 
   useEffect(() => {
-    linkedList.getSize() === listSize ? setIsEnough(true) : setIsEnough(false);
-    linkedList.getSize() === 0
-      ? setIsDisabledDelete(true)
-      : setIsDisabledDelete(false);
+    const size = linkedList.getSize();
+    size === listSize ? setIsEnough(true) : setIsEnough(false);
+    size === 0 ? setIsDisabledDelete(true) : setIsDisabledDelete(false);
 
     if (stages) {
-      setCurrStage(
-        <>
-          {stages.map((el, i) => {
-            const isFirst = i === 0;
-            const isLast = stages.length - 1 === i;
-            const isCurr = currElement === i;
-            const isHeadInfo = typeof headInfo !== 'string';
-            const isTailInfo = typeof tailInfo !== 'string';
+      timeline(() => {
+        setCurrStage(
+          <>
+            {stages.map((el, i) => {
+              const isFirst = i === 0;
+              const isLast = stages.length - 1 === i;
+              const isCurr = currElement === i;
+              const isHeadInfo = typeof headInfo !== 'string';
+              const isTailInfo = typeof tailInfo !== 'string';
+              const isIndexMethod =
+                method === Methods.addIndex || method === Methods.delIndex;
 
-            return (
-              <motion.div
-                initial={{
-                  y: -30,
-                  opacity: 0,
-                  width: isLast ? 80 : 100,
-                }}
-                animate={{
-                  y: 0,
-                  opacity: 1,
-                  width: isLast ? 80 : 120,
-                }}
-                transition={{ ease: 'easeIn', duration: 0.5, delay: i / 10 }}
-                key={el.id}
-                layoutId={el.id}
-                style={{ display: 'flex', alignItems: 'center', gap: 16 }}
-              >
-                <Circle
-                  letter={el.data + ''}
-                  index={i}
-                  head={isHeadInfo && isCurr ? headInfo : isFirst ? 'head' : ''}
-                  tail={isTailInfo && isCurr ? tailInfo : isLast ? 'tail' : ''}
-                  state={isCurr ? elementPhase : ElementStates.Default}
-                />
-                {isLast ? '' : <ArrowIcon />}
-              </motion.div>
-            );
-          })}
-        </>
-      );
+              return (
+                <motion.div
+                  initial={{
+                    y: -30,
+                    opacity: 0,
+                    width: isLast ? 80 : 100,
+                  }}
+                  animate={{
+                    y: 0,
+                    opacity: 1,
+                    width: isLast ? 80 : 120,
+                  }}
+                  transition={{ ease: 'easeIn', duration: 0.5, delay: i / 10 }}
+                  key={el.id}
+                  layoutId={el.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: 16 }}
+                >
+                  <Circle
+                    letter={el.data + ''}
+                    index={i}
+                    head={
+                      isHeadInfo && isCurr ? headInfo : isFirst ? 'head' : ''
+                    }
+                    tail={
+                      isTailInfo && isCurr ? tailInfo : isLast ? 'tail' : ''
+                    }
+                    state={
+                      isCurr
+                        ? elementPhase
+                        : isIndexMethod && i < currElement
+                        ? ElementStates.Changing
+                        : ElementStates.Default
+                    }
+                  />
+                  {isLast ? '' : <ArrowIcon />}
+                </motion.div>
+              );
+            })}
+          </>
+        );
+      })
+        .then(() => wait(1600))
+        .then(() => {
+          if (method === Methods.addTail) {
+            setCurrElement(size - 1);
+            setElementPhase(ElementStates.Modified);
+          }
+        })
+        .then(() => {
+          if (
+            (method === Methods.addIndex || method === Methods.delIndex) &&
+            currElement !== inputIndex
+          ) {
+            return Promise.reject();
+          }
+        })
+        .then(() => {
+          setIsLoader(false);
+          if (method === Methods.addTail || method === Methods.addHead) {
+            setElementPhase(ElementStates.Modified);
+            setHeadInfo('head');
+            setStages(linkedList.getList());
+            setMethod(null);
+            setInputData('');
+            (
+              document.querySelector('input[name=list]') as HTMLInputElement
+            ).value = '';
+          }
+          if (method === Methods.delHead || method === Methods.delTail) {
+            setTailInfo('tail');
+            setStages(linkedList.getList());
+            setMethod(null);
+          }
+          if (method === Methods.addIndex || method === Methods.delIndex) {
+            if (method === Methods.addIndex) {
+              setElementPhase(ElementStates.Modified);
+              setInputData('');
+              (
+                document.querySelector('input[name=list]') as HTMLInputElement
+              ).value = '';
+            } else setElementPhase(ElementStates.Default);
+            setTailInfo('tail');
+            setHeadInfo('head');
+            setStages(linkedList.getList());
+            setMethod(null);
+          }
+        })
+        .then(() => wait(1500))
+        .then(() => {
+          if (method === null) setElementPhase(ElementStates.Default);
+        })
+        .catch(() => setCurrElement(currElement + 1));
     }
   }, [stages, elementPhase, currElement, headInfo, tailInfo]);
 

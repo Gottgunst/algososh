@@ -29,6 +29,20 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
     setInputData((e.target as HTMLInputElement).value);
   };
 
+  // Промисы для контроля анимации
+  const timeline = (callback: Function) =>
+    new Promise<void>((resolve) => {
+      callback();
+      resolve();
+    });
+  // пауза
+  const wait = (time = 700) =>
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, time);
+    });
+
   return {
     inputData,
     setInputData,
@@ -49,6 +63,8 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
     setCurrElement,
     lap,
     setLap,
+    timeline,
+    wait,
   };
 };
 
@@ -86,4 +102,7 @@ type TUseStagesState = <S, CS = JSX.Element>(
 
   lap: number | null;
   setLap: Dispatch<number | null>;
+
+  timeline: (callback: Function) => Promise<void>;
+  wait: (time: number) => Promise<void>;
 };
