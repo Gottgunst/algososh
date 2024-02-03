@@ -6,21 +6,18 @@ import { useStagesState } from '../../hooks/useStagesState';
 import { Button } from '../ui/button/button';
 import { Direction } from '../../types/direction';
 import { RadioInput } from '../ui/radio-input/radio-input';
-import { sortingArr } from '../../algorithms/sortingArr';
+import { TArrTuples, sortingArr } from '../../algorithms/sortingArr';
 import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
-import { TElementAnimation, TStageElement } from '../../types/stage-element';
-import { TArrWithId, arrWithMemo } from '../../utils/arrWithMemo';
+import { TStageElement } from '../../types/stage-element';
+import { arrWithMemo } from '../../utils/arrWithMemo';
 
 // Начальный Массив
 const initArray = [10, 100, 42, 35, 88];
 
 export const SortingPage: React.FC = () => {
   const [sortingType, setSortingType] = useState('select');
-  const [animationArray, setAnimationArray] = useState<
-    TElementAnimation[] | null
-  >(null);
-  const [currElement, setCurrElement] = useState<number>(0);
+  const [elState, setElState] = useState<ElementStates | null>(null);
 
   const {
     inputData,
@@ -32,11 +29,13 @@ export const SortingPage: React.FC = () => {
     setStages,
     currStage,
     setCurrStage,
+    currElement,
+    setCurrElement,
     lap,
     setLap,
     timeline,
     wait,
-  } = useStagesState<TArrWithId<number>[][]>(initArray);
+  } = useStagesState<TArrTuples>(initArray);
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -44,8 +43,8 @@ export const SortingPage: React.FC = () => {
     const direction = (e.nativeEvent as any).submitter.value;
     const type = sortingType;
 
-    setIsLoader(true);
     setLap(0);
+    setIsLoader(true);
     setStages(sortingArr({ arr: inputData, direction, type }));
   };
 
@@ -54,7 +53,12 @@ export const SortingPage: React.FC = () => {
     setInputData(newArray);
     setCurrStage(
       stageElement({
-        stages: [arrWithMemo<number>(newArray)],
+        stages: [
+          [
+            arrWithMemo<number>(newArray),
+            Array(newArray.length).fill(ElementStates.Default),
+          ],
+        ],
         lap: 0,
       })
     );
@@ -64,30 +68,26 @@ export const SortingPage: React.FC = () => {
     setSortingType((e.target as HTMLInputElement).value);
   };
 
-  const stageElement: TStageElement<TArrWithId<number>[][]> = ({
-    stages,
-    lap,
-    animation = Array(stages[lap].length).fill({
-      state: ElementStates.Default,
-    }),
-  }) => {
+  const stageElement: TStageElement<TArrTuples> = ({ stages, lap }) => {
+    const [arr, states] = stages[lap];
+    const isFinal = elState !== null;
+
     return (
       <motion.div
         layoutId='result'
         className='result result_sortArray'
         transition={{ ease: 'easeIn', duration: 0.7 }}
       >
-        {stages[lap].map((el, i) => {
-          const state = animation[i].state;
-
+        {arr.map((el, i) => {
+          const state = states[i];
           return (
             <motion.div
               key={el.id}
-              layoutId={'id' + el.id}
-              initial={{ opacity: 0, scale: 1, y: 0 }}
+              layoutId={el.id}
+              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <Column index={el.data} state={state} />
+              <Column index={el.data} state={isFinal ? elState : state} />
             </motion.div>
           );
         })}
@@ -103,8 +103,14 @@ export const SortingPage: React.FC = () => {
     if (!stages)
       setCurrStage(
         stageElement({
-          stages: [arrWithMemo<number>(initArray)],
+          stages: [
+            [
+              arrWithMemo<number>(initArray),
+              Array(5).fill(ElementStates.Default),
+            ],
+          ],
           lap: 0,
+          phase: 'initial',
         })
       );
     return () => {
@@ -113,55 +119,35 @@ export const SortingPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (stages && lap != null) {
-      let anim: TElementAnimation[];
+    if (stages && lap !== null) {
+      console.log(stages);
+
+      const maxLap = stages.length;
 
       timeline(() => {
-        // if (animationArray === null && currElement < stages[lap].length - 1) {
-        //   setAnimationArray(
-        //
-        //   );
-        // }
+        setCurrStage(stageElement({ stages, lap }));
       })
+        .then(() => wait(500))
         .then(() => {
-          // anim = [
-          //   ...stages[lap].map((el, i) => {
-          //     return {
-          //       state:
-          //         el.index === i
-          //           ? ElementStates.Changing
-          //           : ElementStates.Modified,
-          //       index: el.index,
-          //       link: el,
-          //     };
-          //   }),
-          // ];
-        })
-        .then(() => {
-          setCurrStage(stageElement({ stages, lap }));
-
-          // if (currElement < stages[lap].length - 1) {
-          //   // setAnimationArray(null);
-          //   setCurrElement(currElement + 1);
-          //   return Promise.reject();
-          // }
-        })
-        .then(() => wait(30 * stages.length - 1))
-        .then(() => {
-          if (lap < stages!.length - 1) {
+          if (lap < maxLap - 1) {
             setLap(lap + 1);
-            setCurrElement(0);
-          } else {
-            setLap(null);
-            setIsLoader(false);
+          }
+          if (lap === maxLap - 1 && elState === null) {
+            setLap(maxLap - 1);
+            setElState(ElementStates.Modified);
+            return Promise.reject();
           }
         })
-        .catch(() => {
-          // setLap(null);
-          // setIsLoader(false);
-        });
+        .then(() => {
+          if (lap === maxLap - 1) {
+            setLap(null);
+            setIsLoader(false);
+            setElState(null);
+          }
+        })
+        .catch(() => {});
     }
-  }, [stages, lap]);
+  }, [stages, lap, elState]);
 
   /* #######################
   ========== JSX ==========
