@@ -11,6 +11,7 @@ import { Column } from '../ui/column/column';
 import { ElementStates } from '../../types/element-states';
 import { TStageElement } from '../../types/stage-element';
 import { arrWithMemo } from '../../utils/arrWithMemo';
+import styles from './sorting-page.module.css';
 
 // Начальный Массив
 const initArray = [10, 100, 42, 35, 88];
@@ -75,7 +76,7 @@ export const SortingPage: React.FC = () => {
     return (
       <motion.div
         layoutId='result'
-        className='result result_sortArray'
+        className={styles.result}
         transition={{ ease: 'easeIn', duration: 0.7 }}
       >
         {arr.map((el, i) => {
@@ -155,25 +156,23 @@ export const SortingPage: React.FC = () => {
 
   return (
     <SolutionLayout title='Сортировка массива'>
-      <form
-        className='form'
-        onSubmit={runAlgorithm}
-        style={{ maxWidth: 927, height: 60, alignItems: 'center' }}
-      >
-        <RadioInput
-          label='Выбор'
-          value='select'
-          name='sortingType'
-          onClick={changeSortingType}
-          defaultChecked
-        />
-        <RadioInput
-          label='Пузырёк'
-          value='bubble'
-          name='sortingType'
-          onClick={changeSortingType}
-        />
-        <div style={{ display: 'inherit', gap: 'inherit' }}>
+      <form className={styles.form} onSubmit={runAlgorithm}>
+        <div className={styles.radio}>
+          <RadioInput
+            label='Выбор'
+            value='select'
+            name='sortingType'
+            onClick={changeSortingType}
+            defaultChecked
+          />
+          <RadioInput
+            label='Пузырёк'
+            value='bubble'
+            name='sortingType'
+            onClick={changeSortingType}
+          />
+        </div>
+        <div className={styles.formPart}>
           <Button
             type='submit'
             text='По возрастанию'

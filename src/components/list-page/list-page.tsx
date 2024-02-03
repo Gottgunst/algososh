@@ -10,6 +10,7 @@ import { LinkedList } from '../../algorithms/LinkedList';
 import { Methods } from '../../types/methods';
 import { ElementStates } from '../../types/element-states';
 import { TArrWithId } from '../../utils/arrWithMemo';
+import styles from './list-page.module.css';
 
 // Максимальный Размер Списка
 const listSize = 7;
@@ -172,7 +173,7 @@ export const ListPage: React.FC = () => {
     if (stages) {
       timeline(() => {
         setCurrStage(
-          <>
+          <motion.div className={styles.result} layout>
             {stages.map((el, i) => {
               const isFirst = i === 0;
               const isLast = stages.length - 1 === i;
@@ -197,7 +198,7 @@ export const ListPage: React.FC = () => {
                   transition={{ ease: 'easeIn', duration: 0.5, delay: i / 10 }}
                   key={el.id}
                   layoutId={el.id}
-                  style={{ display: 'flex', alignItems: 'center', gap: 16 }}
+                  className={styles.wrapper}
                 >
                   <Circle
                     letter={el.data + ''}
@@ -220,7 +221,7 @@ export const ListPage: React.FC = () => {
                 </motion.div>
               );
             })}
-          </>
+          </motion.div>
         );
       })
         .then(() => wait(1600))
@@ -283,18 +284,14 @@ export const ListPage: React.FC = () => {
 
   return (
     <SolutionLayout title='Связный список'>
-      <form
-        className='form'
-        onSubmit={runAlgorithm}
-        style={{ maxWidth: 952, flexDirection: 'column' }}
-      >
-        <div style={{ display: 'inherit', gap: 'inherit' }}>
+      <form className={styles.form} onSubmit={runAlgorithm}>
+        <div className={styles.formPart}>
           <Input
             maxLength={4}
             isLimitText={true}
             onChange={changeInput}
             name='list'
-            extraClass='input-width'
+            extraClass={styles.input}
           />
           <Button
             type='submit'
@@ -302,7 +299,7 @@ export const ListPage: React.FC = () => {
             value={Methods.addHead}
             isLoader={isLoader}
             disabled={isDisabledInput || isEnough}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
           <Button
             type='submit'
@@ -310,7 +307,7 @@ export const ListPage: React.FC = () => {
             value={Methods.addTail}
             isLoader={isLoader}
             disabled={isDisabledInput || isEnough}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
           <Button
             type='button'
@@ -318,7 +315,7 @@ export const ListPage: React.FC = () => {
             isLoader={isLoader}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delHead)}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
           <Button
             type='button'
@@ -326,15 +323,15 @@ export const ListPage: React.FC = () => {
             isLoader={isLoader}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delTail)}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
         </div>
-        <div style={{ display: 'inherit', gap: 'inherit' }}>
+        <div className={styles.formPart}>
           <Input
             type='number'
             onChange={changeInputIndex}
             name='index-list'
-            extraClass='input-width'
+            extraClass={styles.input}
             defaultValue={0}
             max={isDisabledDelete ? 0 : linkedList.getSize() - 1}
             min={0}
@@ -345,7 +342,7 @@ export const ListPage: React.FC = () => {
             value={Methods.addIndex}
             isLoader={isLoader}
             disabled={isDisabledInputIndex || isDisabledInput || isEnough}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
           <Button
             type='button'
@@ -353,13 +350,12 @@ export const ListPage: React.FC = () => {
             isLoader={isLoader}
             disabled={isDisabledDelete || isDisabledInputIndex}
             onClick={() => delItem(Methods.delIndex)}
-            extraClass='button-width'
+            extraClass={styles.button}
           />
         </div>
       </form>
-      <motion.div className='result' layout style={{ minHeight: 232 }}>
-        {currStage}
-      </motion.div>
+
+      {currStage}
     </SolutionLayout>
   );
 };

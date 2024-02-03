@@ -1,0 +1,24 @@
+.form {
+  composes: form from "../page.css";
+  max-width: 980px;
+  height: 60px;
+  align-items: center;
+}
+
+.radio {
+  display: flex;
+  gap: 40px;
+}
+
+.formPart {
+  composes: form from "../page.css";
+}
+
+
+.result {
+  composes: result from "../page.css";
+  padding-top: 48px;
+  max-width: 100%;
+  align-items: flex-end;
+  height: 348px;
+}

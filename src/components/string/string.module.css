@@ -1,0 +1,10 @@
+.form {
+  composes: form from "../page.css";
+  max-width: 522px;
+}
+
+.result {
+  composes: result from "../page.css";
+  padding-top: 122px;
+  max-width: 1040px;
+}

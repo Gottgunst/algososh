@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Circle } from '../ui/circle/circle';
 import { calcFibonacci } from '../../algorithms/calcFibonacci';
 import { useStagesState } from '../../hooks/useStagesState';
+import styles from './fibonacci-page.module.css';
 
 export const FibonacciPage: React.FC = () => {
   const {
@@ -53,7 +54,7 @@ export const FibonacciPage: React.FC = () => {
 
     if (stages) {
       setCurrStage(
-        <>
+        <motion.div className={styles.result}>
           {stages.map((el, i) => (
             <motion.div
               initial={{ x: -5, y: -30, opacity: 0 }}
@@ -65,7 +66,7 @@ export const FibonacciPage: React.FC = () => {
               <Circle letter={el + ''} index={i} />
             </motion.div>
           ))}
-        </>
+        </motion.div>
       );
       setTimeout(() => setIsLoader(false), stages.length * 600);
     }
@@ -77,7 +78,7 @@ export const FibonacciPage: React.FC = () => {
 
   return (
     <SolutionLayout title='Последовательность Фибоначчи'>
-      <form className='form' onSubmit={runAlgorithm}>
+      <form className={styles.form} onSubmit={runAlgorithm}>
         <Input
           max={19}
           isLimitText={true}
@@ -91,7 +92,7 @@ export const FibonacciPage: React.FC = () => {
           isLoader={isLoader}
         />
       </form>
-      <motion.div className='result'>{currStage}</motion.div>
+      {currStage}
     </SolutionLayout>
   );
 };

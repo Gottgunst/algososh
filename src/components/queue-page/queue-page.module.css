@@ -1,0 +1,22 @@
+.form {
+  composes: form from "../page.css";
+  max-width: 829px;
+  height: 60px;
+  justify-content: space-between;
+}
+
+.formPart {
+  composes: form from "../page.css";
+  max-width: 630px;
+  margin: 0;
+}
+
+.input {
+  width: 377px;
+}
+
+.result {
+  composes: result from "../page.css";
+  padding-top: 70px;
+  max-width: 100%;
+}

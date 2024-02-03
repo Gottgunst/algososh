@@ -8,6 +8,7 @@ import { Stack } from '../../algorithms/Stack';
 import { Circle } from '../ui/circle/circle';
 import { TArrWithId } from '../../utils/arrWithMemo';
 import { ElementStates } from '../../types/element-states';
+import styles from './stack-page.module.css';
 
 export const StackPage: React.FC = () => {
   const [stack] = useState(new Stack<string>());
@@ -73,7 +74,11 @@ export const StackPage: React.FC = () => {
     if (stages && stages.length > 0) {
       setIsDisabledDelete(false);
       setCurrStage(
-        <>
+        <motion.div
+          className={styles.result}
+          layout
+          transition={{ ease: 'easeIn', duration: 0.5 }}
+        >
           {stages.map((el, i) => (
             <motion.div
               initial={{ x: -5, y: -30, opacity: 0 }}
@@ -92,7 +97,7 @@ export const StackPage: React.FC = () => {
               />
             </motion.div>
           ))}
-        </>
+        </motion.div>
       );
       if (isLoader)
         setTimeout(() => {
@@ -111,14 +116,13 @@ export const StackPage: React.FC = () => {
 
   return (
     <SolutionLayout title='Стек'>
-      <form className='form' onSubmit={runAlgorithm} style={{ maxWidth: 927 }}>
-        {' '}
-        <div style={{ display: 'inherit', gap: 'inherit' }}>
+      <form className={styles.form} onSubmit={runAlgorithm}>
+        <div className={styles.formPart}>
           <Input
             maxLength={4}
             isLimitText={true}
             onChange={changeInput}
-            style={{ width: 377 }}
+            extraClass={styles.input}
             name='stack'
           />
           <Button
@@ -145,13 +149,8 @@ export const StackPage: React.FC = () => {
           onClick={clearItem}
         />
       </form>
-      <motion.div
-        className='result'
-        layout
-        transition={{ ease: 'easeIn', duration: 0.5 }}
-      >
-        {currStage}
-      </motion.div>
+
+      {currStage}
     </SolutionLayout>
   );
 };

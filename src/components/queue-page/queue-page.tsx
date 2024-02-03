@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { ElementStates } from '../../types/element-states';
 import { Circle } from '../ui/circle/circle';
 import { Queue } from '../../algorithms/Queue';
+import styles from './queue-page.module.css';
 
 // Размер очереди
 const queueSize = 7;
@@ -88,7 +89,7 @@ export const QueuePage: React.FC = () => {
     if (stages) {
       const [_, head, tail] = queue.getCoords();
       setCurrStage(
-        <>
+        <motion.div className={styles.result} layout>
           {stages.map((el, i) => (
             <motion.div
               initial={{ x: -5, y: -30, opacity: 0 }}
@@ -108,7 +109,7 @@ export const QueuePage: React.FC = () => {
               />
             </motion.div>
           ))}
-        </>
+        </motion.div>
       );
       if (isLoader)
         setTimeout(() => {
@@ -127,13 +128,13 @@ export const QueuePage: React.FC = () => {
 
   return (
     <SolutionLayout title='Очередь'>
-      <form className='form' onSubmit={runAlgorithm} style={{ maxWidth: 927 }}>
-        <div style={{ display: 'inherit', gap: 'inherit' }}>
+      <form className={styles.form} onSubmit={runAlgorithm}>
+        <div className={styles.formPart}>
           <Input
             maxLength={4}
             isLimitText={true}
             onChange={changeInput}
-            style={{ width: 377 }}
+            extraClass={styles.input}
             name='queue'
           />
           <Button
@@ -160,9 +161,8 @@ export const QueuePage: React.FC = () => {
           onClick={clearItem}
         />
       </form>
-      <motion.div className='result' layout>
-        {currStage}
-      </motion.div>
+
+      {currStage}
     </SolutionLayout>
   );
 };
