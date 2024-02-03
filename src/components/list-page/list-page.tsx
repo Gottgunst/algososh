@@ -50,8 +50,10 @@ export const ListPage: React.FC = () => {
   const changeInputIndex: FormEventHandler<HTMLInputElement> = (e: any) => {
     const input = Number((e.target as HTMLInputElement).value);
 
-    if (input < 0) setIsDisabledInputIndex(true);
-    else {
+    if (input < 0 || input > linkedList.getSize() - 1) {
+      setIsDisabledInputIndex(true);
+      e.target.value = 0;
+    } else {
       setIsDisabledInputIndex(false);
       setInputIndex(input);
     }
