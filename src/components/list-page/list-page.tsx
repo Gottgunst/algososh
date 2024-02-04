@@ -17,7 +17,7 @@ const listSize = 7;
 
 export const ListPage: React.FC = () => {
   const [linkedList] = useState(new LinkedList<string>());
-  const [inputIndex, setInputIndex] = useState<number>(0);
+  const [inputIndex, setInputIndex] = useState<number | null>(0);
   const [isDisabledInputIndex, setIsDisabledInputIndex] = useState(false);
   const [isEnough, setIsEnough] = useState(false);
 
@@ -47,12 +47,17 @@ export const ListPage: React.FC = () => {
     wait,
   } = useStagesState<TArrWithId<string | null>[]>('');
 
-  const changeInputIndex: FormEventHandler<HTMLInputElement> = (e: any) => {
-    const input = Number((e.target as HTMLInputElement).value);
+  const changeInputIndex: FormEventHandler<HTMLInputElement> = (e) => {
+    const input = Number(e.currentTarget.value);
 
-    if (input < 0 || input > linkedList.getSize() - 1) {
+    if (
+      input < 0 ||
+      input > linkedList.getSize() - 1 ||
+      e.currentTarget.value === ''
+    ) {
+      setInputData(null);
       setIsDisabledInputIndex(true);
-      e.target.value = 0;
+      e.currentTarget.value = '';
     } else {
       setIsDisabledInputIndex(false);
       setInputIndex(input);
@@ -82,7 +87,7 @@ export const ListPage: React.FC = () => {
       case Methods.addIndex:
         // setCurrElement(isFromHead ? 0 : size - 1);
         setCurrElement(0);
-        linkedList.insertAt(inputData, inputIndex);
+        linkedList.insertAt(inputData, inputIndex!);
         setElementPhase(ElementStates.Changing);
         break;
 
@@ -102,7 +107,7 @@ export const ListPage: React.FC = () => {
     setIsLoader(true);
     setElementPhase(ElementStates.Changing);
 
-    if (stages)
+    if (stages && inputIndex)
       switch (method) {
         case Methods.delHead:
           setCurrElement(0);
@@ -151,6 +156,7 @@ export const ListPage: React.FC = () => {
 
   useEffect(() => {
     setInputData(null);
+    setInputIndex(null);
     if (linkedList.getSize() === 0) {
       linkedList.init(['34', '8', '1']);
       setElementPhase(ElementStates.Default);
@@ -349,7 +355,7 @@ export const ListPage: React.FC = () => {
             onChange={changeInputIndex}
             name='index-list'
             extraClass={styles.input}
-            defaultValue={0}
+            // defaultValue={0}
             max={isDisabledDelete ? 0 : linkedList.getSize() - 1}
             min={0}
           />
@@ -358,14 +364,21 @@ export const ListPage: React.FC = () => {
             text={isEnough ? 'Нет места' : 'Добавить по индексу'}
             value={Methods.addIndex}
             isLoader={isLoader && method === Methods.addIndex}
-            disabled={isDisabledInputIndex || isDisabledInput || isEnough}
+            disabled={
+              isDisabledInputIndex ||
+              isDisabledInput ||
+              isEnough ||
+              inputIndex === null
+            }
             extraClass={styles.button}
           />
           <Button
             type='button'
             text='Удалить по индексу'
             isLoader={isLoader && method === Methods.delIndex}
-            disabled={isDisabledDelete || isDisabledInputIndex}
+            disabled={
+              isDisabledDelete || isDisabledInputIndex || inputIndex === null
+            }
             onClick={() => delItem(Methods.delIndex)}
             extraClass={styles.button}
           />
