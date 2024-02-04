@@ -11,6 +11,8 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   const [isDisabledInput, setIsDisabledInput] = useState(false);
   // отключение кнопок очистки
   const [isDisabledDelete, setIsDisabledDelete] = useState(false);
+  //элемент добавляется или стирается
+  const [isAddElement, setIsAddElement] = useState(true);
 
   // данные для всех сцен
   const [stages, setStages] = useState<S | null>(null);
@@ -53,6 +55,8 @@ export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
     setIsDisabledInput,
     isDisabledDelete,
     setIsDisabledDelete,
+    isAddElement,
+    setIsAddElement,
     stages,
     setStages,
     currStage,
@@ -87,6 +91,9 @@ type TUseStagesState = <S, CS = JSX.Element>(
 
   isDisabledDelete: boolean;
   setIsDisabledDelete: Dispatch<boolean>;
+
+  isAddElement: boolean;
+  setIsAddElement: Dispatch<boolean>;
 
   stages: S | null;
   setStages: Dispatch<S | null>;

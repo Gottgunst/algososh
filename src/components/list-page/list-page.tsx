@@ -168,9 +168,23 @@ export const ListPage: React.FC = () => {
   }, [inputData]);
 
   useEffect(() => {
+    if (isLoader) {
+      setIsDisabledDelete(true);
+      setIsDisabledInput(true);
+      setIsDisabledInputIndex(true);
+    } else {
+      setIsDisabledInput(false);
+      setIsDisabledInputIndex(false);
+
+      linkedList.getSize() === 0
+        ? setIsDisabledDelete(true)
+        : setIsDisabledDelete(false);
+    }
+  }, [isLoader]);
+
+  useEffect(() => {
     const size = linkedList.getSize();
     size === listSize ? setIsEnough(true) : setIsEnough(false);
-    size === 0 ? setIsDisabledDelete(true) : setIsDisabledDelete(false);
 
     if (stages) {
       timeline(() => {
@@ -299,7 +313,7 @@ export const ListPage: React.FC = () => {
             type='submit'
             text={isEnough ? 'Нет места' : 'Добавить в head'}
             value={Methods.addHead}
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.addHead}
             disabled={isDisabledInput || isEnough}
             extraClass={styles.button}
           />
@@ -307,14 +321,14 @@ export const ListPage: React.FC = () => {
             type='submit'
             text={isEnough ? 'Нет места' : 'Добавить в tail'}
             value={Methods.addTail}
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.addTail}
             disabled={isDisabledInput || isEnough}
             extraClass={styles.button}
           />
           <Button
             type='button'
             text='Удалить из head'
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.delHead}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delHead)}
             extraClass={styles.button}
@@ -322,7 +336,7 @@ export const ListPage: React.FC = () => {
           <Button
             type='button'
             text='Удалить из tail'
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.delTail}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delTail)}
             extraClass={styles.button}
@@ -342,14 +356,14 @@ export const ListPage: React.FC = () => {
             type='submit'
             text={isEnough ? 'Нет места' : 'Добавить по индексу'}
             value={Methods.addIndex}
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.addIndex}
             disabled={isDisabledInputIndex || isDisabledInput || isEnough}
             extraClass={styles.button}
           />
           <Button
             type='button'
             text='Удалить по индексу'
-            isLoader={isLoader}
+            isLoader={isLoader && method === Methods.delIndex}
             disabled={isDisabledDelete || isDisabledInputIndex}
             onClick={() => delItem(Methods.delIndex)}
             extraClass={styles.button}

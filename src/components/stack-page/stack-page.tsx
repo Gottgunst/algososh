@@ -12,6 +12,7 @@ import styles from './stack-page.module.css';
 
 export const StackPage: React.FC = () => {
   const [stack] = useState(new Stack<string>());
+
   const {
     inputData,
     setInputData,
@@ -22,6 +23,8 @@ export const StackPage: React.FC = () => {
     setIsDisabledInput,
     isDisabledDelete,
     setIsDisabledDelete,
+    isAddElement,
+    setIsAddElement,
     stages,
     setStages,
     currStage,
@@ -30,9 +33,23 @@ export const StackPage: React.FC = () => {
     setElementPhase,
   } = useStagesState<TArrWithId<string>[]>('');
 
+  const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    setIsLoader(true);
+    setIsAddElement(true);
+    stack.push(inputData);
+    setInputData('');
+    (document.querySelector('input[name=stack]') as HTMLInputElement).value =
+      '';
+    setStages(stack.getArray());
+    setElementPhase(ElementStates.Changing);
+  };
+
   const delItem = () => {
     setElementPhase(ElementStates.Changing);
     setIsLoader(true);
+    setIsAddElement(false);
     setTimeout(() => {
       stack.pop();
       setStages(stack.getArray());
@@ -42,18 +59,6 @@ export const StackPage: React.FC = () => {
   const clearItem = () => {
     stack.clear();
     setStages(null);
-  };
-
-  const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-
-    setIsLoader(true);
-    stack.push(inputData);
-    setInputData('');
-    (document.querySelector('input[name=stack]') as HTMLInputElement).value =
-      '';
-    setStages(stack.getArray());
-    setElementPhase(ElementStates.Changing);
   };
 
   /* #######################
@@ -71,8 +76,20 @@ export const StackPage: React.FC = () => {
   }, [inputData]);
 
   useEffect(() => {
+    if (isLoader) {
+      setIsDisabledInput(true);
+      setIsDisabledDelete(true);
+    } else {
+      setIsDisabledInput(false);
+
+      stages && stages.length > 0
+        ? setIsDisabledDelete(false)
+        : setIsDisabledDelete(true);
+    }
+  }, [isLoader]);
+
+  useEffect(() => {
     if (stages && stages.length > 0) {
-      setIsDisabledDelete(false);
       setCurrStage(
         <motion.div
           className={styles.result}
@@ -105,7 +122,6 @@ export const StackPage: React.FC = () => {
           setElementPhase(ElementStates.Default);
         }, 700);
     } else {
-      setIsDisabledDelete(true);
       setCurrStage(<></>);
     }
   }, [stages, elementPhase]);
@@ -129,14 +145,14 @@ export const StackPage: React.FC = () => {
             type='submit'
             text='Добавить'
             value='Добавить'
-            isLoader={isLoader}
+            isLoader={isLoader && isAddElement}
             disabled={isDisabledInput}
           />
           <Button
             type='button'
             text='Удалить'
             value='Удалить'
-            isLoader={isLoader}
+            isLoader={isLoader && !isAddElement}
             disabled={isDisabledDelete}
             onClick={delItem}
           />
@@ -144,7 +160,7 @@ export const StackPage: React.FC = () => {
         <Button
           type='button'
           text='Очистить'
-          isLoader={isLoader}
+          // isLoader={isLoader}
           disabled={isDisabledDelete}
           onClick={clearItem}
         />

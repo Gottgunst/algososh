@@ -18,6 +18,7 @@ const initArray = [10, 100, 42, 35, 88];
 
 export const SortingPage: React.FC = () => {
   const [sortingType, setSortingType] = useState('select');
+  const [directionType, setDirectionType] = useState<Direction | null>(null);
   const [elState, setElState] = useState<ElementStates | null>(null);
 
   const {
@@ -26,12 +27,11 @@ export const SortingPage: React.FC = () => {
     isLoader,
     setIsLoader,
     isDisabledInput,
+    setIsDisabledInput,
     stages,
     setStages,
     currStage,
     setCurrStage,
-    currElement,
-    setCurrElement,
     lap,
     setLap,
     timeline,
@@ -42,6 +42,7 @@ export const SortingPage: React.FC = () => {
     e.preventDefault();
 
     const direction = (e.nativeEvent as any).submitter.value;
+    setDirectionType(direction);
     const type = sortingType;
 
     setLap(0);
@@ -120,6 +121,14 @@ export const SortingPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (isLoader) {
+      setIsDisabledInput(true);
+    } else {
+      setIsDisabledInput(false);
+    }
+  }, [isLoader]);
+
+  useEffect(() => {
     if (stages && lap !== null) {
       console.log(stages);
 
@@ -177,7 +186,7 @@ export const SortingPage: React.FC = () => {
             type='submit'
             text='По возрастанию'
             value={Direction.Ascending}
-            isLoader={isLoader}
+            isLoader={isLoader && directionType === Direction.Ascending}
             disabled={isDisabledInput}
             sorting={Direction.Ascending}
           />
@@ -185,7 +194,7 @@ export const SortingPage: React.FC = () => {
             type='submit'
             text='По убыванию'
             value={Direction.Descending}
-            isLoader={isLoader}
+            isLoader={isLoader && directionType === Direction.Descending}
             disabled={isDisabledInput}
             sorting={Direction.Descending}
           />
@@ -193,7 +202,7 @@ export const SortingPage: React.FC = () => {
         <Button
           type='button'
           text='Новый массив'
-          isLoader={isLoader}
+          // isLoader={isLoader}
           disabled={isDisabledInput}
           onClick={newArray}
         />

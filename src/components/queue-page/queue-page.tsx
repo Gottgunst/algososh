@@ -24,6 +24,8 @@ export const QueuePage: React.FC = () => {
     setIsDisabledInput,
     isDisabledDelete,
     setIsDisabledDelete,
+    isAddElement,
+    setIsAddElement,
     stages,
     setStages,
     currStage,
@@ -38,6 +40,7 @@ export const QueuePage: React.FC = () => {
     e.preventDefault();
 
     setIsLoader(true);
+    setIsAddElement(true);
     queue.enqueue(inputData);
 
     setInputData('');
@@ -54,6 +57,7 @@ export const QueuePage: React.FC = () => {
     const [_, head] = queue.getCoords();
     setCurrElement(head);
     setIsLoader(true);
+    setIsAddElement(false);
 
     setTimeout(() => {
       queue.dequeue();
@@ -86,6 +90,17 @@ export const QueuePage: React.FC = () => {
   }, [inputData]);
 
   useEffect(() => {
+    if (isLoader) {
+      setIsDisabledInput(true);
+      setIsDisabledDelete(true);
+    } else {
+      setIsDisabledInput(false);
+
+      queue.isEmpty() ? setIsDisabledDelete(true) : setIsDisabledDelete(false);
+    }
+  }, [isLoader]);
+
+  useEffect(() => {
     if (stages) {
       const [_, head, tail] = queue.getCoords();
       setCurrStage(
@@ -114,9 +129,6 @@ export const QueuePage: React.FC = () => {
       if (isLoader)
         setTimeout(() => {
           setIsLoader(false);
-          queue.isEmpty()
-            ? setIsDisabledDelete(true)
-            : setIsDisabledDelete(false);
           setElementPhase(ElementStates.Default);
         }, 500);
     }
@@ -141,14 +153,14 @@ export const QueuePage: React.FC = () => {
             type='submit'
             text='Добавить'
             value='Добавить'
-            isLoader={isLoader}
+            isLoader={isLoader && isAddElement}
             disabled={isDisabledInput}
           />
           <Button
             type='button'
             text='Удалить'
             value='Удалить'
-            isLoader={isLoader}
+            isLoader={isLoader && !isAddElement}
             disabled={isDisabledDelete}
             onClick={delItem}
           />
@@ -156,7 +168,7 @@ export const QueuePage: React.FC = () => {
         <Button
           type='button'
           text='Очистить'
-          isLoader={isLoader}
+          // isLoader={isLoader}
           disabled={isDisabledDelete}
           onClick={clearItem}
         />
