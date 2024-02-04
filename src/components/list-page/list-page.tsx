@@ -55,7 +55,7 @@ export const ListPage: React.FC = () => {
       input > linkedList.getSize() - 1 ||
       e.currentTarget.value === ''
     ) {
-      setInputData(null);
+      setInputIndex(null);
       setIsDisabledInputIndex(true);
       e.currentTarget.value = '';
     } else {
@@ -107,7 +107,7 @@ export const ListPage: React.FC = () => {
     setIsLoader(true);
     setElementPhase(ElementStates.Changing);
 
-    if (stages && inputIndex)
+    if (stages)
       switch (method) {
         case Methods.delHead:
           setCurrElement(0);
@@ -122,11 +122,12 @@ export const ListPage: React.FC = () => {
           linkedList.pop();
           break;
         case Methods.delIndex:
-          setCurrElement(inputIndex);
+          setCurrElement(inputIndex!);
 
-          setTailInfo(miniCircle(stages[inputIndex].data!, false));
-          setStages(removeCurrValue(inputIndex));
-          linkedList.removeAt(inputIndex);
+          setTailInfo(miniCircle(stages[inputIndex!].data!, false));
+          setStages(removeCurrValue(inputIndex!));
+          linkedList.removeAt(inputIndex!);
+
           break;
 
         default:
@@ -168,26 +169,27 @@ export const ListPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (inputData === '' || inputData === null) setIsDisabledInput(true);
-    else setIsDisabledInput(false);
-
-    if (linkedList.getSize() !== 0) setIsDisabledDelete(false);
-  }, [inputData]);
-
-  useEffect(() => {
     if (isLoader) {
       setIsDisabledDelete(true);
       setIsDisabledInput(true);
       setIsDisabledInputIndex(true);
     } else {
-      setIsDisabledInput(false);
-      setIsDisabledInputIndex(false);
-
       linkedList.getSize() === 0
         ? setIsDisabledDelete(true)
         : setIsDisabledDelete(false);
+
+      // setIsDisabledInput(false);
+      // setIsDisabledInputIndex(false);
+
+      inputData === '' || inputData === null
+        ? setIsDisabledInput(true)
+        : setIsDisabledInput(false);
+
+      inputIndex === null
+        ? setIsDisabledInputIndex(true)
+        : setIsDisabledInputIndex(false);
     }
-  }, [isLoader]);
+  }, [isLoader, inputData, inputIndex]);
 
   useEffect(() => {
     const size = linkedList.getSize();
@@ -263,13 +265,11 @@ export const ListPage: React.FC = () => {
           }
         })
         .then(() => {
-          setIsLoader(false);
           if (method === Methods.addTail || method === Methods.addHead) {
             setElementPhase(ElementStates.Modified);
             setHeadInfo('head');
             setStages(linkedList.getList());
-            setMethod(null);
-            setInputData('');
+            setInputData(null);
             (
               document.querySelector('input[name=list]') as HTMLInputElement
             ).value = '';
@@ -277,23 +277,33 @@ export const ListPage: React.FC = () => {
           if (method === Methods.delHead || method === Methods.delTail) {
             setTailInfo('tail');
             setStages(linkedList.getList());
-            setMethod(null);
           }
           if (method === Methods.addIndex || method === Methods.delIndex) {
             if (method === Methods.addIndex) {
               setElementPhase(ElementStates.Modified);
-              setInputData('');
+              setInputData(null);
               (
                 document.querySelector('input[name=list]') as HTMLInputElement
               ).value = '';
-            } else setElementPhase(ElementStates.Default);
+            } else {
+              setElementPhase(ElementStates.Default);
+            }
+            (
+              document.querySelector('input[name=index]') as HTMLInputElement
+            ).value = '';
+
             setTailInfo('tail');
             setHeadInfo('head');
             setStages(linkedList.getList());
-            setMethod(null);
           }
         })
-        .then(() => wait(1500))
+        .then(() => wait(1000))
+        .then(() => {
+          setIsLoader(false);
+          setInputIndex(null);
+          setMethod(null);
+        })
+        .then(() => wait(800))
         .then(() => {
           if (method === null) setElementPhase(ElementStates.Default);
         })
@@ -353,7 +363,7 @@ export const ListPage: React.FC = () => {
           <Input
             type='number'
             onChange={changeInputIndex}
-            name='index-list'
+            name='index'
             extraClass={styles.input}
             // defaultValue={0}
             max={isDisabledDelete ? 0 : linkedList.getSize() - 1}

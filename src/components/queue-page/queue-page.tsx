@@ -86,21 +86,17 @@ export const QueuePage: React.FC = () => {
   useEffect(() => {
     const [length] = queue.getCoords();
 
-    if (inputData === '' || length === queueSize || inputData === null)
-      setIsDisabledInput(true);
-    else setIsDisabledInput(false);
-  }, [inputData]);
-
-  useEffect(() => {
     if (isLoader) {
       setIsDisabledInput(true);
       setIsDisabledDelete(true);
     } else {
-      setIsDisabledInput(false);
+      if (inputData === '' || length === queueSize || inputData === null)
+        setIsDisabledInput(true);
+      else setIsDisabledInput(false);
 
       queue.isEmpty() ? setIsDisabledDelete(true) : setIsDisabledDelete(false);
     }
-  }, [isLoader]);
+  }, [isLoader, inputData, stages]);
 
   useEffect(() => {
     if (stages) {

@@ -72,22 +72,17 @@ export const StackPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (inputData === '' || inputData === null) setIsDisabledInput(true);
-    else setIsDisabledInput(false);
-  }, [inputData]);
-
-  useEffect(() => {
     if (isLoader) {
       setIsDisabledInput(true);
       setIsDisabledDelete(true);
     } else {
-      setIsDisabledInput(false);
+      inputData === '' || inputData === null
+        ? setIsDisabledInput(true)
+        : setIsDisabledInput(false);
 
-      stages && stages.length > 0
-        ? setIsDisabledDelete(false)
-        : setIsDisabledDelete(true);
+      stages?.length ? setIsDisabledDelete(false) : setIsDisabledDelete(true);
     }
-  }, [isLoader]);
+  }, [isLoader, inputData, stages]);
 
   useEffect(() => {
     if (stages && stages.length > 0) {
