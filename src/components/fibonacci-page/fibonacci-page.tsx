@@ -23,9 +23,9 @@ export const FibonacciPage: React.FC = () => {
   } = useStagesState<number[]>(0);
 
   const changeInput: FormEventHandler<HTMLInputElement> = (e) => {
-    const input = Number((e.target as HTMLInputElement).value);
+    const input = parseInt((e.target as HTMLInputElement).value);
 
-    if (input > 19 || input < 1) setIsDisabledInput(true);
+    if (input > 19 || input < 1 || isNaN(input)) setIsDisabledInput(true);
     else {
       setIsDisabledInput(false);
       setInputData(input);

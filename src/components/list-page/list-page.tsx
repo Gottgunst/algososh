@@ -48,11 +48,12 @@ export const ListPage: React.FC = () => {
   } = useStagesState<TArrWithId<string | null>[]>('');
 
   const changeInputIndex: FormEventHandler<HTMLInputElement> = (e) => {
-    const input = Number(e.currentTarget.value);
+    const input = parseInt(e.currentTarget.value);
 
     if (
       input < 0 ||
       input > linkedList.getSize() - 1 ||
+      isNaN(input) ||
       e.currentTarget.value === ''
     ) {
       setInputIndex(null);
