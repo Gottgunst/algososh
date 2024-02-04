@@ -1,0 +1,32 @@
+.form {
+  composes: form from "../page.css";
+  max-width: 952px;
+  height: 158px;
+  flex-direction: column;
+}
+
+.formPart {
+  composes: form from "../page.css";
+  margin: 0;
+}
+
+.input {
+  min-width: 204px;
+}
+
+.result {
+  composes: result from "../page.css";
+  padding-top: 48px;
+  max-width: 100%;
+  min-height: 232px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.button {
+  width: 100%;
+}
