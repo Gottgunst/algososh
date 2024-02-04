@@ -77,6 +77,7 @@ export const QueuePage: React.FC = () => {
   useEffect(() => {
     setIsDisabledDelete(true);
     setStages(Array(queueSize).fill(null));
+    setInputData(null);
     return () => {
       setCurrStage(<></>);
     };
@@ -85,7 +86,8 @@ export const QueuePage: React.FC = () => {
   useEffect(() => {
     const [length] = queue.getCoords();
 
-    if (inputData === '' || length === queueSize) setIsDisabledInput(true);
+    if (inputData === '' || length === queueSize || inputData === null)
+      setIsDisabledInput(true);
     else setIsDisabledInput(false);
   }, [inputData]);
 

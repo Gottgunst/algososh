@@ -65,13 +65,14 @@ export const StackPage: React.FC = () => {
   ======== Эффекты ========
   ####################### */
   useEffect(() => {
+    setInputData(null);
     return () => {
       setCurrStage(<></>);
     };
   }, []);
 
   useEffect(() => {
-    if (inputData === '') setIsDisabledInput(true);
+    if (inputData === '' || inputData === null) setIsDisabledInput(true);
     else setIsDisabledInput(false);
   }, [inputData]);
 

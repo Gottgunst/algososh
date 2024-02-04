@@ -3,7 +3,7 @@ import { ElementStates } from '../types/element-states';
 
 export const useStagesState: TUseStagesState = <S, CS>(input: any) => {
   // входящие данные
-  const [inputData, setInputData] = useState(input);
+  const [inputData, setInputData] = useState<typeof input | null>(input);
 
   // сцена загружается или анимируется
   const [isLoader, setIsLoader] = useState(false);

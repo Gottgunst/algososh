@@ -150,6 +150,7 @@ export const ListPage: React.FC = () => {
   ####################### */
 
   useEffect(() => {
+    setInputData(null);
     if (linkedList.getSize() === 0) {
       linkedList.init(['34', '8', '1']);
       setElementPhase(ElementStates.Default);
@@ -161,7 +162,7 @@ export const ListPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (inputData === '') setIsDisabledInput(true);
+    if (inputData === '' || inputData === null) setIsDisabledInput(true);
     else setIsDisabledInput(false);
 
     if (linkedList.getSize() !== 0) setIsDisabledDelete(false);
