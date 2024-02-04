@@ -25,6 +25,8 @@ export const StringComponent: React.FC = () => {
     setCurrStage,
     lap,
     setLap,
+    timeline,
+    wait,
   } = useStagesState<TArrWithId<string>[][]>('');
 
   const runAlgorithm: FormEventHandler<HTMLFormElement> = (e) => {
@@ -91,29 +93,27 @@ export const StringComponent: React.FC = () => {
 
   useEffect(() => {
     if (stages && lap !== null) {
-      // инициализация массива в состоянии default
-      if (lap === 0)
-        setCurrStage(stageElement({ stages, lap, phase: 'initial' }));
+      const phase =
+        lap === 0
+          ? 'initial'
+          : lap < stages!.length - 1
+          ? 'animate'
+          : 'finally';
 
-      // запуск анимации перестановки
-      setTimeout(() => {
-        setCurrStage(stageElement({ stages, lap, phase: 'animate' }));
-
-        if (lap < stages!.length - 1) {
-          // переход на новый круг анимации
-          setTimeout(() => {
+      timeline(() => {
+        setCurrStage(stageElement({ stages, lap, phase }));
+      })
+        .then(() => wait(lap === 0 ? 1000 : 800))
+        .then(() => {
+          if (lap < stages!.length - 1) {
             setLap(lap + 1);
-          }, 500);
-        } else {
-          // перекрашиваем все знаки в modified
-          setCurrStage(stageElement({ stages, lap, phase: 'finally' }));
-          setLap(null);
-        }
-      }, 900);
-
-      setTimeout(() => setIsLoader(false), stages.length + 4 * 1500);
+          } else {
+            setLap(null);
+            setIsLoader(false);
+          }
+        });
     }
-  }, [stages, setCurrStage, lap]);
+  }, [stages, lap]);
 
   /* #######################
   ========== JSX ==========

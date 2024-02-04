@@ -51,7 +51,9 @@ export const FibonacciPage: React.FC = () => {
   useEffect(() => {
     if (inputData < 1) setIsDisabledInput(true);
     else setIsDisabledInput(false);
+  }, [inputData]);
 
+  useEffect(() => {
     if (stages) {
       setCurrStage(
         <motion.div className={styles.result}>
@@ -70,7 +72,7 @@ export const FibonacciPage: React.FC = () => {
       );
       setTimeout(() => setIsLoader(false), stages.length * 600);
     }
-  }, [stages, inputData]);
+  }, [stages]);
 
   /* #######################
   ========== JSX ==========
