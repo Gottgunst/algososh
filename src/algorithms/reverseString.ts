@@ -1,6 +1,8 @@
 import { TArrWithId, arrWithMemo } from '../utils/arrWithMemo';
 
 export function reverseString(str: string): TArrWithId<string>[][] {
+  if (str === '' || !str) throw new Error('Empty string');
+
   const strArr = str.split('');
   const strArrWithMemo = arrWithMemo<string>(strArr);
   const stages = [strArrWithMemo];

@@ -1,7 +1,11 @@
 import { nanoid } from 'nanoid';
 
 export const arrWithMemo: TArrWithMemo = (arr) =>
-  arr.map((el, i) => ({ data: el, id: nanoid(), index: i }));
+  arr.map((el, i) => ({
+    data: el,
+    id: 'id' + Math.round(Math.random() * 1000) + 'd' + Date.now(),
+    index: i,
+  }));
 
 /* #######################
 ========== Типы ==========
