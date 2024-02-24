@@ -105,6 +105,11 @@ export const StringComponent: React.FC = () => {
       })
         .then(() => wait(lap === 0 ? 1000 : 800))
         .then(() => {
+          if (lap === 0)
+            setCurrStage(stageElement({ stages, lap, phase: 'animate' }));
+        })
+        .then(() => wait(lap === 0 ? 1000 : 0))
+        .then(() => {
           if (lap < stages!.length - 1) {
             setLap(lap + 1);
           } else {
