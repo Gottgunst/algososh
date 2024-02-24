@@ -98,15 +98,21 @@ export const StringComponent: React.FC = () => {
           ? 'initial'
           : lap < stages!.length - 1
           ? 'animate'
+          : stages!.length % 2 > 0
+          ? 'animate'
           : 'finally';
 
       timeline(() => {
         setCurrStage(stageElement({ stages, lap, phase }));
       })
-        .then(() => wait(lap === 0 ? 1000 : 800))
+        .then(() => wait(1000))
         .then(() => {
           if (lap === 0)
             setCurrStage(stageElement({ stages, lap, phase: 'animate' }));
+
+          if (stages!.length % 2 > 0 && lap === stages.length - 1) {
+            setCurrStage(stageElement({ stages, lap, phase: 'finally' }));
+          }
         })
         .then(() => wait(lap === 0 ? 1000 : 0))
         .then(() => {
