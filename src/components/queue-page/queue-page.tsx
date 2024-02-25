@@ -166,6 +166,7 @@ export const QueuePage: React.FC = () => {
         <Button
           type='button'
           text='Очистить'
+          value='Очистить'
           // isLoader={isLoader}
           disabled={isDisabledDelete}
           onClick={clearItem}
