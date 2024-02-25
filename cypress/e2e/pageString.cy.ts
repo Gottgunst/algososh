@@ -1,6 +1,8 @@
 describe('String page', () => {
   beforeEach(function () {
-    cy.visit('http://localhost:3000/recursion');
+    cy.visit('/recursion');
+
+    cy.get('button[type="submit"]').as('addButton');
   });
 
   // если в инпуте пусто, то кнопка добавления недоступна.
@@ -8,9 +10,9 @@ describe('String page', () => {
     const str = 'проба';
 
     cy.get('input').should('be.empty');
-    cy.get('button[type="submit"]').should('be.disabled');
+    cy.get('@addButton').should('be.disabled');
     cy.get('input').type(str);
-    cy.get('button[type="submit"]').should('not.be.disabled');
+    cy.get('@addButton').should('not.be.disabled');
   });
 
   // строка разворачивается корректно. Важно, чтобы у вас на каждом шаге анимации были проверки на корректность выполненной операции и корректность стилей.
@@ -29,7 +31,7 @@ describe('String page', () => {
 
     //assert
     cy.get('input').type(str);
-    cy.get('button[type="submit"]').click();
+    cy.get('@addButton').click();
 
     for (let i = 0; i < length; i++, cy.wait(1000)) {
       cy.get('[class*=circle_circle]')

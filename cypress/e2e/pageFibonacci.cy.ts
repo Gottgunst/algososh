@@ -1,6 +1,8 @@
 describe('Fibonacci page', () => {
   beforeEach(function () {
-    cy.visit('http://localhost:3000/fibonacci');
+    cy.visit('/fibonacci');
+
+    cy.get('button[type="submit"]').as('addButton');
   });
 
   // Если в input пусто, то кнопка добавления недоступна.
@@ -8,12 +10,12 @@ describe('Fibonacci page', () => {
     const str = '19';
 
     cy.get('input').should('be.empty');
-    cy.get('button[type="submit"]').should('be.disabled');
+    cy.get('@addButton').should('be.disabled');
     cy.get('input').type(str);
-    cy.get('button[type="submit"]').should('not.be.disabled');
+    cy.get('@addButton').should('not.be.disabled');
 
     cy.get('input').type(str + str);
-    cy.get('button[type="submit"]').should('be.disabled');
+    cy.get('@addButton').should('be.disabled');
   });
 
   // Проверьте, что числа генерируются корректно.
@@ -25,7 +27,7 @@ describe('Fibonacci page', () => {
     ];
 
     cy.get('input').type(str);
-    cy.get('button[type="submit"]').click();
+    cy.get('@addButton').click();
 
     cy.get('p.text_type_circle').each(($p, i) => {
       const num = Number($p.text());

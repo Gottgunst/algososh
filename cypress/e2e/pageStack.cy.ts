@@ -1,96 +1,84 @@
 describe('Stack page', () => {
+  const strings = ['Боб', 'Бор', 'Роб', 'Рой'];
+  const { length } = strings;
+
   beforeEach(function () {
-    cy.visit('http://localhost:3000/stack');
+    cy.visit('/stack');
+
+    cy.get('button[type="submit"]').as('addButton');
+    cy.get('button[value="Удалить"]').as('delButton');
+    cy.get('button[value="Очистить"]').as('clearButton');
   });
 
-  // Проверьте, что если в инпуте пусто, то кнопка добавления недоступна.
+  // Если в инпуте пусто, то кнопка добавления недоступна.
   it('режимы работы кнопок', () => {
-    const str = 'Тор';
-
     cy.get('input').should('be.empty');
-    cy.get('button[type="submit"]').should('be.disabled');
-    cy.get('button[type=button]').should('be.disabled');
-    // cy.get('button[text="Очистить"]').should('be.disabled');
-    cy.get('input').type(str);
-    cy.get('button[type="submit"]')
+    cy.get('@addButton').should('be.disabled');
+    cy.get('@delButton').should('be.disabled');
+    cy.get('@clearButton').should('be.disabled');
+
+    cy.get('input').type(strings[0]);
+    cy.get('@addButton')
       .should('not.be.disabled')
       .click()
       .should('be.disabled');
-    cy.get('button[type=button]').should('not.be.disabled');
+
+    cy.get('@delButton').should('not.be.disabled');
+    cy.get('@clearButton').should('not.be.disabled');
   });
 
-  // Проверьте правильность добавления элемента в стек. Важно убедиться, что цвета элементов меняются и каждый шаг анимации отрабатывает корректно.
+  // Правильность добавления элемента в стек
+  // цвета элементов меняются и каждый шаг анимации отрабатывает корректно.
   it('добавление в стек элемента', () => {
-    const str = 'Роб';
-
     //assert
-    cy.get('input').type(str);
-    cy.get('button[type="submit"]').click();
-    // for (let i = 0; i < length; i++, cy.wait(1000)) {
-    //   cy.get('[class*=circle_circle]')
-    //     .should('have.length', length)
-    //     .each((el, j) => {
-    //       const classes = el[0].className;
-    //       const classD = classes.match(/circle_default.+/);
-    //       const classC = classes.match(/circle_changing.+/);
-    //       const classM = classes.match(/circle_modified.+/);
-    //       console.log(classD, classC, classM);
-    //       if (classD) {
-    //         expect(el).to.have.text(str[j]);
-    //         expect('d').eql(stateArr[i][j]);
-    //       }
-    //       if (classC) {
-    //         expect(el).to.have.text(str[j]);
-    //         expect('c').eql(stateArr[i][j]);
-    //       }
-    //       if (classM) {
-    //         expect(el).to.have.text(reverseStr[j]);
-    //         expect('m').eql(stateArr[i][j]);
-    //       }
-    //     });
-    // }
+    for (let i = 0; i < length; i++) {
+      cy.get('input').type(strings[i]);
+      cy.get('@addButton').click();
+      cy.get('[class*=circle_changing]')
+        .should('have.length', 1)
+        .should('contain.text', strings[i])
+        .wait(1000)
+        .invoke('attr', 'class')
+        .should('contain', 'circle_default');
+    }
+
+    cy.get('[class*=circle_circle]')
+      .should('have.length', length)
+      .last()
+      .then((el) => {
+        const lastText = el.text();
+        expect(lastText).eql(strings[length - 1]);
+      });
   });
 
   // Проверить правильность удаления элемента из стека.
+  it('удаление элемента в стеке', () => {
+    for (let i = 0; i < length; i++) {
+      cy.get('input').type(strings[i]);
+      cy.get('@addButton').click();
+    }
 
-  // Проверьте поведение кнопки «Очистить». Добавьте в стек несколько элементов, по нажатию на кнопку «Очистить» длина стека должна быть равна 0.
+    cy.get('@delButton').click();
+
+    cy.get('[class*=circle_circle]')
+      .should('have.length', length - 1)
+      .last()
+      .then((el) => {
+        const lastText = el.text();
+        expect(lastText).eql(strings[length - 2]);
+      });
+  });
+
+  // Проверьте поведение кнопки «Очистить».
+  // по нажатию на кнопку «Очистить» длина стека должна быть равна 0.
+  it('очистка стека', () => {
+    for (let i = 0; i < length; i++) {
+      cy.get('input').type(strings[i]);
+      cy.get('@addButton').click();
+    }
+
+    cy.get('@clearButton').click();
+
+    cy.get('[class*=circle_circle]').should('have.length', 0);
+  });
 });
-
-// cy.waitUntil(    //   () => {
-//     // Проверка состояния компонента после срабатывания useEffect
-//     return cy
-//       .get('.component')
-//       .invoke('attr', 'data-loaded')
-//       .then((attrValue) => {
-//         return attrValue === 'true';
-//       });
-//   },
-//   { timeout: 10000 }
-// );
-
-//   it('should add and subtract products count', function () {
-//     cy.get('[class^=product_product__]').first().as('product');
-//     cy.get('@product')
-//       .find('[class^=amount-button_button]')
-//       .first()
-//       .as('minusButton');
-//     cy.get('@product')
-//       .find('[class^=amount-button_button]')
-//       .last()
-//       .as('plusButton');
-//     cy.get('@product').find('[class^=product_amount__]').as('productCount');
-
-//     cy.get('@productCount').should('contain', '1');
-
-//     cy.get('@plusButton').click();
-//     cy.get('@productCount').should('contain', '2');
-
-//     cy.get('@plusButton').click();
-//     cy.get('@productCount').should('contain', '3');
-
-//     cy.get('@minusButton').click();
-//     cy.get('@productCount').should('contain', '2');
-
-//     cy.get('@minusButton').click();
-//     cy.get('@productCount').should('contain', '1');
-//   });
