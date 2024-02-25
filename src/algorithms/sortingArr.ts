@@ -6,12 +6,19 @@ export const sortingArr: TSortingArr = ({
   type = 'select',
   direction = 'ascending',
 }) => {
+  if (arr.length === 0 || !arr) throw new Error('Empty array');
+
   const numWithMemo = arrWithMemo<number>(arr);
 
   const { length } = numWithMemo;
   const stages: TArrTuples = [
     [numWithMemo, Array(length).fill(ElementStates.Default)],
   ];
+
+  if (arr.length === 1) {
+    stages.push([[...numWithMemo], Array(length).fill(ElementStates.Modified)]);
+    return stages;
+  }
 
   switch (type) {
     case 'select':
