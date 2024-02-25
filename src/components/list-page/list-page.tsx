@@ -346,6 +346,7 @@ export const ListPage: React.FC = () => {
           <Button
             type='button'
             text='Удалить из head'
+            value={Methods.delHead}
             isLoader={isLoader && method === Methods.delHead}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delHead)}
@@ -354,6 +355,7 @@ export const ListPage: React.FC = () => {
           <Button
             type='button'
             text='Удалить из tail'
+            value={Methods.delTail}
             isLoader={isLoader && method === Methods.delTail}
             disabled={isDisabledDelete}
             onClick={() => delItem(Methods.delTail)}
@@ -386,6 +388,7 @@ export const ListPage: React.FC = () => {
           <Button
             type='button'
             text='Удалить по индексу'
+            value={Methods.delIndex}
             isLoader={isLoader && method === Methods.delIndex}
             disabled={
               isDisabledDelete || isDisabledInputIndex || inputIndex === null
