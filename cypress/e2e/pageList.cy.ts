@@ -1,7 +1,12 @@
 describe('Queue page', () => {
-  const strings = ['Ром', 'Дон', 'Шон', 'Кон', 'Бон'];
-  const indexes = ['2', '5'];
-  const { length } = strings;
+  const strings = ['Шон', 'Кон', 'Бон'];
+  const itemIndex = '1';
+
+  const isLoader = (button) =>
+    cy
+      .get(button)
+      .invoke('attr', 'class')
+      .should('not.contain', 'button_loader');
 
   beforeEach(function () {
     cy.visit('/list');
@@ -19,111 +24,104 @@ describe('Queue page', () => {
   });
 
   // Если в инпуте пусто, то кнопка добавления недоступна.
-  it('режимы работы кнопок', () => {
+  it('в input пусто, то кнопка добавления недоступна.', () => {
     cy.get('@inputList').should('be.empty');
     cy.get('@addHead').should('be.disabled');
     cy.get('@addTail').should('be.disabled');
     cy.get('@addIndex').should('be.disabled');
-
-    // cy.get('@delHead').should('be.disabled');
 
     cy.get('@inputList').type(strings[0]);
     cy.get('@addHead').should('not.be.disabled');
     cy.get('@addTail').should('not.be.disabled');
     cy.get('@addIndex').should('be.disabled');
 
-    cy.get('@inputIndex').type(indexes[0]);
+    cy.get('@inputIndex').type(itemIndex);
     cy.get('@addIndex').should('not.be.disabled');
   });
 
   // отрисовки дефолтного списка.
+  it('отрисовки дефолтного списка', () => {
+    //assert
+    cy.get('[class*=circle_circle]').should('exist');
+  });
 
   // добавления элемента в head.
-
+  it('добавления элемента в head', () => {
+    cy.get('@inputList').type(strings[0]);
+    cy.get('@addHead').click();
+    //assert
+    cy.get('[class*=circle_circle]').first().should('contain', strings[0]);
+  });
   // добавления элемента в tail.
-
+  it('добавления элемента в tail', () => {
+    cy.get('@inputList').type(strings[1]);
+    cy.get('@addTail').click();
+    //assert
+    cy.get('[class*=circle_circle]').last().should('contain', strings[1]);
+  });
   // добавления элемента по индексу.
-
+  it('добавления элемента по индексу', () => {
+    cy.get('@inputList').type(strings[2]);
+    cy.get('@inputIndex').type(itemIndex);
+    cy.get('@addIndex').click();
+    //assert
+    cy.get('[class*=circle_circle]', { timeout: 10000 })
+      .eq(Number(itemIndex))
+      .should('contain', strings[2]);
+  });
   // удаления элемента из head.
+  it('удаления элемента в head', () => {
+    cy.get('@inputList').type(strings[0]);
+    cy.get('@addHead').click();
 
+    cy.waitUntil(() => isLoader('@addHead'), { timeout: 8000 });
+
+    cy.get('@inputList').clear().type(strings[1]);
+    cy.get('@addHead').click();
+
+    cy.waitUntil(() => isLoader('@addHead'), { timeout: 8000 });
+    //assert
+    cy.get('@delHead').click();
+    cy.get('[class*=circle_circle]').first().should('contain', strings[0]);
+  });
   // удаления элемента из tail.
+  it('удаления элемента в tail', () => {
+    cy.get('@inputList').type(strings[1]);
+    cy.get('@addTail').click();
 
+    cy.waitUntil(() => isLoader('@addTail'), { timeout: 8000 });
+
+    cy.get('@inputList').clear().type(strings[2]);
+    cy.get('@addTail').click();
+
+    cy.waitUntil(() => isLoader('@addTail'), { timeout: 8000 });
+    cy.wait(500);
+
+    //assert
+    cy.get('@delTail').click();
+    cy.get('[class*=circle_circle]').last().should('contain', strings[1]);
+  });
   // удаления элемента по индексу.
+  it('удаления элемента по индексу', () => {
+    //prepare
+    cy.get('@inputList').type(strings[0]);
+    cy.get('@inputIndex').type(itemIndex);
+    cy.get('@addIndex').click();
 
-  // it('добавление в очередь элемента', () => {
-  //   //assert
-  //   for (let i = 0; i < length; i++) {
-  //     cy.get('input').type(strings[i]);
-  //     cy.get('@addButton').click();
+    cy.waitUntil(() => isLoader('@addIndex'), { timeout: 8000 });
 
-  //     cy.get('@queueArr')
-  //       .eq(i)
-  //       .should('contain', strings[i])
-  //       .invoke('attr', 'class')
-  //       .should('contain', 'circle_changing');
+    cy.get('@inputList').clear().type(strings[1]);
+    cy.get('@inputIndex').clear().type(itemIndex);
+    cy.get('@addIndex').click();
 
-  //     cy.get('@queueArr', { timeout: 2000 })
-  //       .eq(i)
-  //       .invoke('attr', 'class')
-  //       .should('contain', 'circle_default');
+    cy.waitUntil(() => isLoader('@addIndex'), { timeout: 8000 });
 
-  //     if (i === 0) cy.get('@headArr').eq(i).should('contain', 'head');
+    //assert
+    cy.get('@inputIndex').clear().type(itemIndex);
+    cy.get('@delIndex').click();
 
-  //     cy.get('@tailArr').eq(i).should('contain', 'tail');
-  //   }
-
-  //   cy.get('@tailArr').each((el, i) => {
-  //     if (el.text().includes('tail')) {
-  //       expect(i).to.equal(length - 1);
-  //     }
-  //   });
-
-  //   cy.get('@headArr').each((el, i) => {
-  //     if (el.text().includes('head')) {
-  //       expect(i).to.equal(0);
-  //     }
-  //   });
-  // });
-
-  // Проверить правильность удаления элемента из стека.
-  // it('удаление элемента из очереди', () => {
-  //   for (let i = 0; i < length; i++) {
-  //     cy.get('input').type(strings[i]);
-  //     cy.get('@addButton').click();
-  //   }
-
-  //   //assert
-  //   for (let i = 0; i < length - 2; i++) {
-  //     cy.get('@delButton').click();
-
-  //     cy.get('@headArr').eq(i).should('contain', 'head');
-  //     if (i !== length - 1)
-  //       cy.get('@tailArr').eq(i).should('not.contain', 'tail');
-  //     else cy.get('@tailArr').eq(i).should('contain', 'tail');
-  //   }
-
-  //   cy.get('@tailArr').each((el, i) => {
-  //     if (el.text().includes('tail')) {
-  //       expect(i).to.equal(length - 1);
-  //     }
-  //   });
-
-  //   cy.get('@headArr').each((el, i) => {
-  //     if (el.text().includes('head')) {
-  //       expect(i).to.equal(length - 3);
-  //     }
-  //   });
-  // });
+    cy.get('[class*=circle_circle]')
+      .eq(Number(itemIndex))
+      .should('contain', strings[0]);
+  });
 });
-
-// cy.waitUntil(    //   () => {
-//     // Проверка состояния компонента после срабатывания useEffect
-//     return cy
-//       .get('.component')
-//       .invoke('attr', 'data-loaded')
-//       .then((attrValue) => {
-//         return attrValue === 'true';
-//       });
-//   },
-//   { timeout: 10000 }
-// );
